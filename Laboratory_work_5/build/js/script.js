@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.bh = void 0;
-const AjaxifyTS_1 = require("./AjaxifyTS");
+import { ajaxify } from "./AjaxifyTS";
 const homeHtml = "snippets/home-snippets.html";
 const allCategoriesUrl = "data/categories.json";
 const categoryHtmlUrl = "snippets/category-snippets.html";
@@ -38,7 +35,7 @@ const switchActive = (activeElement) => {
 };
 const loadHomeHtml = () => {
     showLoading("#main");
-    AjaxifyTS_1.ajaxify.sendGetRequest(homeHtml, (responseText) => {
+    ajaxify.sendGetRequest(homeHtml, (responseText) => {
         switchActive("home");
         insertHtml("#main", responseText);
         attachHomeListeners();
@@ -47,10 +44,10 @@ const loadHomeHtml = () => {
 const attachHomeListeners = () => {
     var _a, _b;
     (_a = document.querySelector("#catalogButton")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
-        exports.bh.loadCatalogCategories();
+        bh.loadCatalogCategories();
     });
     (_b = document.querySelector("#randomCategoryButton")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => {
-        exports.bh.loadRandomCategory();
+        bh.loadRandomCategory();
     });
 };
 const attachCategoryListeners = () => {
@@ -58,31 +55,31 @@ const attachCategoryListeners = () => {
         element.addEventListener("click", () => {
             const shortName = element.dataset.category;
             if (shortName) {
-                exports.bh.loadCatalogItems(shortName);
+                bh.loadCatalogItems(shortName);
             }
         });
     });
 };
-exports.bh = {
+export const bh = {
     loadRandomCategory() {
         showLoading("#main");
-        AjaxifyTS_1.ajaxify.sendGetRequest(allCategoriesUrl, (categories) => {
+        ajaxify.sendGetRequest(allCategoriesUrl, (categories) => {
             const randomIndex = Math.floor(Math.random() * categories.length);
             const randomCategory = categories[randomIndex];
-            exports.bh.loadCatalogItems(randomCategory.short_name);
+            bh.loadCatalogItems(randomCategory.short_name);
         });
     },
     loadCatalogCategories() {
         showLoading("#main");
-        AjaxifyTS_1.ajaxify.sendGetRequest(allCategoriesUrl, buildAndShowCategoriesHTML);
+        ajaxify.sendGetRequest(allCategoriesUrl, buildAndShowCategoriesHTML);
     },
     loadCatalogItems(categoryShort) {
         showLoading("#main");
-        AjaxifyTS_1.ajaxify.sendGetRequest(`${catalogItemsUrl}${categoryShort}.json`, buildAndShowCatalogItemsHTML);
+        ajaxify.sendGetRequest(`${catalogItemsUrl}${categoryShort}.json`, buildAndShowCatalogItemsHTML);
     },
 };
 const buildAndShowCategoriesHTML = (categories) => {
-    AjaxifyTS_1.ajaxify.sendGetRequest(categoryHtmlUrl, (categoryHtml) => {
+    ajaxify.sendGetRequest(categoryHtmlUrl, (categoryHtml) => {
         switchActive("catalog");
         const viewHtml = buildCategoriesViewHtml(categories, categoryHtml);
         insertHtml("#main", viewHtml);
@@ -102,8 +99,8 @@ const buildCategoriesViewHtml = (categories, categoryHtml) => {
     return finalHtml;
 };
 const buildAndShowCatalogItemsHTML = (data) => {
-    AjaxifyTS_1.ajaxify.sendGetRequest(catalogItemsTitleHtmlUrl, (titleHtml) => {
-        AjaxifyTS_1.ajaxify.sendGetRequest(catalogItemHtmlUrl, (itemHtml) => {
+    ajaxify.sendGetRequest(catalogItemsTitleHtmlUrl, (titleHtml) => {
+        ajaxify.sendGetRequest(catalogItemHtmlUrl, (itemHtml) => {
             switchActive("catalog");
             const viewHtml = buildCatalogItemsViewHtml(data, titleHtml, itemHtml);
             insertHtml("#main", viewHtml);

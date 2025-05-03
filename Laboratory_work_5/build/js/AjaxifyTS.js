@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ajaxify = void 0;
 function getRequestObject() {
     if (window.XMLHttpRequest) {
         return new XMLHttpRequest();
@@ -10,7 +7,7 @@ function getRequestObject() {
         throw new Error("Ajax not supported");
     }
 }
-exports.ajaxify = {
+export const ajaxify = {
     sendGetRequest(requestUrl, responseHandler, isJsonResponse = true) {
         const request = getRequestObject();
         request.onreadystatechange = () => {
