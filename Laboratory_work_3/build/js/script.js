@@ -1,4 +1,4 @@
-import { ajaxify } from "./AjaxifyTS";
+import { sendGetRequest } from "./AjaxifyTS.js";
 const homeHtml = "snippets/home-snippets.html";
 const allCategoriesUrl = "data/categories.json";
 const categoryHtmlUrl = "snippets/category-snippets.html";
