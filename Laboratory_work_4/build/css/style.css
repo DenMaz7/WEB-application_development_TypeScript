@@ -1,0 +1,19 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url("../img/Background.png");
+    background-position: center;
+}
+
+img {
+    text-align: center;
+	display: flex;
+	margin: 0 auto;
+	max-width: 100%;
+	height: auto;
+}
+
