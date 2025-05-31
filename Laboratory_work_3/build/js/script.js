@@ -1,131 +1,98 @@
-import { sendGetRequest } from "./AjaxifyTS.js";
-const homeHtml = "snippets/home-snippets.html";
-const allCategoriesUrl = "data/categories.json";
-const categoryHtmlUrl = "snippets/category-snippets.html";
-const catalogItemsUrl = "data/catalog/";
-const catalogItemsTitleHtmlUrl = "snippets/catalog-items-title.html";
-const catalogItemHtmlUrl = "snippets/catalog-item.html";
-const insertHtml = (selector, html) => {
-    const targetElem = document.querySelector(selector);
-    if (targetElem) {
-        targetElem.innerHTML = html;
-    }
-};
-const showLoading = (selector) => {
-    const html = `<div class='text-center'><img src='images/ajax-loader.gif'></div>`;
-    insertHtml(selector, html);
-};
-const insertProperty = (template, propName, propValue) => {
-    const propToReplace = new RegExp(`{{${propName}}}`, "g");
-    return template.replace(propToReplace, propValue);
-};
-const switchActive = (activeElement) => {
-    const homeButton = document.querySelector("#navHomeButton");
-    const catalogButton = document.querySelector("#navCatalogButton");
-    if (homeButton && catalogButton) {
-        if (activeElement === "catalog") {
-            homeButton.classList.remove("active");
-            catalogButton.classList.add("active");
+function getCategoryPositions(category) {
+    var filename = "./".concat(category, ".json");
+    var request = new XMLHttpRequest();
+    request.open("GET", filename);
+    request.onreadystatechange = function () {
+        if (request.readyState === XMLHttpRequest.DONE) {
+            var rtext = request.responseText;
+            var rjson = JSON.parse(rtext);
+            setPositions(rjson, category);
         }
-        else {
-            catalogButton.classList.remove("active");
-            homeButton.classList.add("active");
+    };
+    request.send();
+}
+getCategoryPositions("Cakes");
+function setPositions(categoryData, categoryName) {
+    var container = document.getElementById("catalog-container");
+    if (!container)
+        return;
+    container.innerHTML = '';
+    categoryData.forEach(function (element) {
+        var div = document.createElement("div");
+        var img = document.createElement("img");
+        var h1 = document.createElement("h1");
+        var text = document.createElement("p");
+        var price = document.createElement("span");
+        text.innerHTML = element.description;
+        h1.innerHTML = element.name;
+        price.innerHTML = "Price: ".concat(element.price);
+        var url = "./images/".concat(categoryName, "/").concat(element.id, ".jpg");
+        img.setAttribute("src", url);
+        div.appendChild(h1);
+        div.appendChild(img);
+        div.appendChild(text);
+        div.appendChild(price);
+        container.appendChild(div);
+    });
+}
+var prevRand = null;
+function setButtonEvents() {
+    var specialsLink = document.getElementById("specials-link");
+    if (!specialsLink)
+        return;
+    specialsLink.addEventListener('click', function (event) {
+        event.preventDefault();
+        var categories = [];
+        document.querySelectorAll(".category-link").forEach(function (link) {
+            var id = link.getAttribute("id");
+            if (id)
+                categories.push(id);
+        });
+        if (categories.length === 0)
+            return;
+        var rand = Math.floor(Math.random() * categories.length);
+        while (rand === prevRand) {
+            rand = Math.floor(Math.random() * categories.length);
         }
-    }
-};
-const loadHomeHtml = () => {
-    showLoading("#main");
-    ajaxify.sendGetRequest(homeHtml, (responseText) => {
-        switchActive("home");
-        insertHtml("#main", responseText);
-        attachHomeListeners();
-    }, false);
-};
-const attachHomeListeners = () => {
-    var _a, _b;
-    (_a = document.querySelector("#catalogButton")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
-        bh.loadCatalogCategories();
+        prevRand = rand;
+        getCategoryPositions(categories[rand]);
     });
-    (_b = document.querySelector("#randomCategoryButton")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => {
-        bh.loadRandomCategory();
-    });
-};
-const attachCategoryListeners = () => {
-    document.querySelectorAll(".category").forEach((element) => {
-        element.addEventListener("click", () => {
-            const shortName = element.dataset.category;
-            if (shortName) {
-                bh.loadCatalogItems(shortName);
-            }
+    document.querySelectorAll('.category-link').forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            var category = this.getAttribute('id');
+            if (category)
+                getCategoryPositions(category);
         });
     });
-};
-export const bh = {
-    loadRandomCategory() {
-        showLoading("#main");
-        ajaxify.sendGetRequest(allCategoriesUrl, (categories) => {
-            const randomIndex = Math.floor(Math.random() * categories.length);
-            const randomCategory = categories[randomIndex];
-            bh.loadCatalogItems(randomCategory.short_name);
-        });
-    },
-    loadCatalogCategories() {
-        showLoading("#main");
-        ajaxify.sendGetRequest(allCategoriesUrl, buildAndShowCategoriesHTML);
-    },
-    loadCatalogItems(categoryShort) {
-        showLoading("#main");
-        ajaxify.sendGetRequest(`${catalogItemsUrl}${categoryShort}.json`, buildAndShowCatalogItemsHTML);
-    },
-};
-const buildAndShowCategoriesHTML = (categories) => {
-    ajaxify.sendGetRequest(categoryHtmlUrl, (categoryHtml) => {
-        switchActive("catalog");
-        const viewHtml = buildCategoriesViewHtml(categories, categoryHtml);
-        insertHtml("#main", viewHtml);
-        attachCategoryListeners();
-    }, false);
-};
-const buildCategoriesViewHtml = (categories, categoryHtml) => {
-    let finalHtml = "<div class='catalog'>";
-    for (const category of categories) {
-        let html = categoryHtml;
-        html = insertProperty(html, "full_name", category.full_name);
-        html = insertProperty(html, "short_name", category.short_name);
-        html = html.replace("<div class=\"category\"", `<div class="category" data-category="${category.short_name}"`);
-        finalHtml += html;
-    }
-    finalHtml += "</div>";
-    return finalHtml;
-};
-const buildAndShowCatalogItemsHTML = (data) => {
-    ajaxify.sendGetRequest(catalogItemsTitleHtmlUrl, (titleHtml) => {
-        ajaxify.sendGetRequest(catalogItemHtmlUrl, (itemHtml) => {
-            switchActive("catalog");
-            const viewHtml = buildCatalogItemsViewHtml(data, titleHtml, itemHtml);
-            insertHtml("#main", viewHtml);
-        }, false);
-    }, false);
-};
-const buildCatalogItemsViewHtml = (data, titleHtml, itemHtml) => {
-    titleHtml = insertProperty(titleHtml, "full_name", data.category.full_name);
-    let finalHtml = titleHtml + "<div class='catalog'>";
-    for (const item of data.catalog_items) {
-        let html = itemHtml;
-        html = insertProperty(html, "catShortName", data.category.short_name);
-        html = insertProperty(html, "short_name", item.short_name);
-        html = insertProperty(html, "full_name", item.full_name);
-        html = insertProperty(html, "author", item.author);
-        html = insertProperty(html, "description", item.description);
-        html = insertProperty(html, "price", item.price);
-        finalHtml += html;
-    }
-    finalHtml += "</div>";
-    return finalHtml;
-};
-document.addEventListener("DOMContentLoaded", () => {
-    var _a, _b;
-    loadHomeHtml();
-    (_a = document.querySelector("#navHomeButton")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", loadHomeHtml);
-    (_b = document.querySelector("#navLogo")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => window.location.reload());
-});
+}
+function loadCategoryData() {
+    var request = new XMLHttpRequest();
+    request.open("GET", "../categories.json");
+    request.onreadystatechange = function () {
+        if (request.readyState === XMLHttpRequest.DONE) {
+            var rtext = request.responseText;
+            var rjson = JSON.parse(rtext);
+            setCategoryData(rjson);
+            setButtonEvents();
+        }
+    };
+    request.send();
+}
+function setCategoryData(dataSet) {
+    var container = document.getElementById("Categories");
+    if (!container)
+        return;
+    dataSet.forEach(function (element) {
+        var a = document.createElement("a");
+        a.classList.add("category-link");
+        a.innerText = element.name;
+        a.id = element.name;
+        var img = document.createElement("img");
+        var src = "./images/".concat(element.name, "/category.jpg");
+        img.setAttribute("src", src);
+        a.appendChild(img);
+        container.appendChild(a);
+    });
+}
+loadCategoryData();

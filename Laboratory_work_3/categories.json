@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "name": "Candies",
+        "shortname": "Candies",
+        "notes": " "
+    },
+    {
+        "id": 2,
+        "name": "Cakes",
+        "shortname": "Cakes",
+        "notes": " "
+    },
+    {
+        "id": 3,
+        "name": "Cupcakes",
+        "shortname": "Cupcakes",
+        "notes": " "
+    },
+    {
+        "id": 4,
+        "name": "Cookies",
+        "shortname": "Cookies",
+        "notes": " "
+    }
+]

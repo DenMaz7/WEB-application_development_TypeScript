@@ -1,48 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-	<title>Book Harbour</title>
-	<link rel="stylesheet" href="css/product.css">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/product.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalog of Conditional Goods or Services</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="./js/script.js" defer></script>
 </head>
 <body>
-
-    <header class="navbar navbar-expand-md bg-dark sticky-top border-bottom" data-bs-theme="dark">
-        <div class="container">
-            <div class="offcanvas-body">
-            <ul class="navbar-nav flex-grow-1 justify-content-between">
-                <li class="nav-item"><a class="nav-link" href="#">
-                <img id="navLogo" class="bi" width="77" height="77" src="images/BookHarbour.png">
-                </a></li>
-                <li class="nav-item"><a id="navHomeButton" class="nav-link active" href="#">Home</a></li>
-                <li class="nav-item"><a id="navCatalogButton" class="nav-link" href="#">Catalog</a></li>
-                <li class="nav-item"></li>
-                <li class="nav-item"></li>
-                <li class="nav-item"></li>
-                <li class="nav-item"></li>
-                <li class="nav-item"></li>
-                <li class="nav-item"></li>
-                <li class="nav-item"><a class="nav-link" href="#">
-                    <img class="bi" width="40" height="40" src="images/Cart.png">
-                </a></li>
-            </ul>
+    <div class="navbar">
+        <div class="logo">
+            <!-- logo -->
+            <img src="../cupcake.png" alt="Logo">
+        </div>
+        <a href="#home">Home</a>
+        <div class="dropdown">
+            <a href="#" class="dropbtn">Catalog</a>
+            <div id="Categories" class="dropdown-content">
             </div>
         </div>
-    </header>
+        <a href="#specials" id="specials-link">Specials</a>
+    </div>
+    <div id="catalog-container">
+        
+    </div>
 
-    <div id="main"></div>
-
-    <footer class="bg-dark border-bottom" data-bs-theme="dark">
-        <div class="footer-content">
-            <img width="50" height="50" src="images/BookHarbour.png" alt="Лого магазину">
-            <p>&copy; 2024</p>
-        </div>
-    </footer>
-
-    <script type="module" src="./js/AjaxifyTS.js"></script>
-    <script type="module" src="./js/script.js"></script>
-    </body>
+    
+</body>
 </html>
