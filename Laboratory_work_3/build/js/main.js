@@ -19,21 +19,29 @@ function setPositions(categoryData, categoryName) {
         return;
     container.innerHTML = '';
     categoryData.forEach((element) => {
-        const div = document.createElement("div");
+        const bookDiv = document.createElement("div");
+        bookDiv.classList.add("book");
         const img = document.createElement("img");
-        const h1 = document.createElement("h1");
-        const text = document.createElement("p");
-        const price = document.createElement("span");
-        text.innerHTML = element.description;
-        h1.innerHTML = element.name;
-        price.innerHTML = `Price: ${element.price}`;
-        const url = `./images/${categoryName}/${element.id}.jpg`;
-        img.setAttribute("src", url);
-        div.appendChild(h1);
-        div.appendChild(img);
-        div.appendChild(text);
-        div.appendChild(price);
-        container.appendChild(div);
+        img.src = `images/catalog/${categoryName}/${element.short_name}.jpg`;
+        img.alt = "Item";
+        const h2 = document.createElement("h2");
+        h2.innerText = element.full_name;
+        const h3 = document.createElement("h3");
+        h3.innerText = element.author;
+        const desc = document.createElement("p");
+        desc.innerText = element.description;
+        const price = document.createElement("p");
+        price.innerText = `${element.price}₴`;
+        const button = document.createElement("button");
+        button.classList.add("buy-button");
+        button.innerText = "Купити";
+        bookDiv.appendChild(img);
+        bookDiv.appendChild(h2);
+        bookDiv.appendChild(h3);
+        bookDiv.appendChild(desc);
+        bookDiv.appendChild(price);
+        bookDiv.appendChild(button);
+        container.appendChild(bookDiv);
     });
 }
 let prevRand = null;
@@ -81,19 +89,23 @@ function loadCategoryData() {
     request.send();
 }
 function setCategoryData(dataSet) {
-    const container = document.getElementById("Categories");
+    const container = document.getElementById("main");
     if (!container)
         return;
+    container.innerHTML = '';
     dataSet.forEach((element) => {
-        const a = document.createElement("a");
-        a.classList.add("category-link");
-        a.innerText = element.name;
-        a.id = element.name;
+        const div = document.createElement("div");
+        div.classList.add("category");
+        div.setAttribute("onclick", `$bh.loadCatalogItems('${element.short_name}');`);
         const img = document.createElement("img");
-        const src = `./images/${element.name}/category.jpg`;
-        img.setAttribute("src", src);
-        a.appendChild(img);
-        container.appendChild(a);
+        img.classList.add("bi");
+        img.src = `images/catalog/${element.short_name}/${element.short_name}.jpg`;
+        img.alt = element.full_name;
+        const h2 = document.createElement("h2");
+        h2.innerText = element.full_name;
+        div.appendChild(img);
+        div.appendChild(h2);
+        container.appendChild(div);
     });
 }
 loadCategoryData();
