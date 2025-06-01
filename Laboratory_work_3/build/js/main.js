@@ -1,13 +1,22 @@
 "use strict";
 let prevRand = null;
-function getCategoryPositions(category) {
-    const filename = `./${category}.json`;
+function getCategoryPositions(categoryUrl, categoryName) {
     const request = new XMLHttpRequest();
-    request.open("GET", filename);
+    request.open("GET", categoryUrl);
     request.onreadystatechange = () => {
         if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
-            const data = JSON.parse(request.responseText);
-            setPositions(data, category);
+            try {
+                const data = JSON.parse(request.responseText);
+                if (Array.isArray(data)) {
+                    setPositions(data, categoryName);
+                }
+                else {
+                    console.error("Очікувався масив, отримано:", data);
+                }
+            }
+            catch (e) {
+                console.error("Помилка парсингу JSON:", e);
+            }
         }
     };
     request.send();
@@ -70,20 +79,33 @@ function setButtonEvents() {
     });
     if (randomCategoryBtn) {
         randomCategoryBtn.addEventListener('click', () => {
-            const categories = [];
-            document.querySelectorAll(".category").forEach(link => {
-                const id = link.getAttribute("id");
-                if (id)
-                    categories.push(id);
-            });
-            if (categories.length === 0)
-                return;
-            let rand = Math.floor(Math.random() * categories.length);
-            while (rand === prevRand) {
-                rand = Math.floor(Math.random() * categories.length);
-            }
-            prevRand = rand;
-            getCategoryPositions(categories[rand]);
+            const request = new XMLHttpRequest();
+            request.open("GET", "./categories.json");
+            request.onreadystatechange = () => {
+                if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+                    try {
+                        const categories = JSON.parse(request.responseText);
+                        if (!Array.isArray(categories) || categories.length === 0) {
+                            console.error("Немає категорій або неправильний формат");
+                            return;
+                        }
+                        let rand = Math.floor(Math.random() * categories.length);
+                        while (rand === prevRand && categories.length > 1) {
+                            rand = Math.floor(Math.random() * categories.length);
+                        }
+                        prevRand = rand;
+                        const selected = categories[rand];
+                        getCategoryPositions(selected.url, selected.short_name);
+                    }
+                    catch (e) {
+                        console.error("Помилка парсингу categories.json:", e);
+                    }
+                }
+                else if (request.readyState === XMLHttpRequest.DONE) {
+                    console.error("Помилка завантаження categories.json");
+                }
+            };
+            request.send();
         });
     }
 }
