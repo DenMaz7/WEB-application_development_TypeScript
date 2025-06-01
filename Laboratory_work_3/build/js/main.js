@@ -48,34 +48,52 @@ function setPositions(categoryData, categoryName) {
 }
 let prevRand = null;
 function setButtonEvents() {
-    const loadHome = document.getElementById("loadHome");
-    if (!loadHome)
-        return;
+    const loadHome = document.getElementById("navHomeButton");
+    const loadCatalog = document.getElementById("navCatalogButton");
     const randomCategory = document.getElementById("randomCategory");
-    if (!randomCategory)
-        return;
-    loadHome.addEventListener('click', function (event) {
-        const container = document.getElementById("main");
-        if (!container)
-            return;
-        container.innerHTML = '<div class="hero"><img src="images/main.jpg"><div class="overlay"></div><div class="cta"><a href="#" class="button" id="loadHome">Перейти до каталогу</a><a href="#" class="button" id="randomCategory">Випадкова категорія</a></div></div>';
-    });
-    randomCategory.addEventListener('click', function (event) {
-        const categories = [];
-        document.querySelectorAll(".category").forEach(link => {
-            const id = link.getAttribute("id");
-            if (id)
-                categories.push(id);
+    if (loadHome) {
+        loadHome.addEventListener('click', () => {
+            const container = document.getElementById("main");
+            if (!container)
+                return;
+            container.innerHTML = `
+        <div class="hero">
+          <img src="images/main.jpg">
+          <div class="overlay"></div>
+          <div class="cta">
+            <a href="#" class="button" id="loadCatalogBtn">Перейти до каталогу</a>
+            <a href="#" class="button" id="randomCategory">Випадкова категорія</a>
+          </div>
+        </div>
+      `;
+            setButtonEvents();
         });
-        if (categories.length === 0)
-            return;
-        let rand = Math.floor(Math.random() * categories.length);
-        while (rand === prevRand) {
-            rand = Math.floor(Math.random() * categories.length);
-        }
-        prevRand = rand;
-        getCategoryPositions(categories[rand]);
-    });
+    }
+    if (loadCatalog) {
+        loadCatalog.addEventListener('click', () => {
+            loadCategoryData();
+        });
+    }
+    if (randomCategory) {
+        randomCategory.addEventListener('click', () => {
+            const categories = [];
+            document.querySelectorAll(".category").forEach(link => {
+                const id = link.getAttribute("id");
+                if (id)
+                    categories.push(id);
+            });
+            if (categories.length === 0)
+                return;
+            let rand = Math.floor(Math.random() * categories.length);
+            while (rand === prevRand) {
+                rand = Math.floor(Math.random() * categories.length);
+            }
+            prevRand = rand;
+            getCategoryPositions(categories[rand]);
+        });
+    }
+}
+function setCategoryClickEvents() {
     document.querySelectorAll('.category').forEach(link => {
         link.addEventListener('click', function (event) {
             event.preventDefault();
@@ -93,7 +111,6 @@ function loadCategoryData() {
             const rtext = request.responseText;
             const rjson = JSON.parse(rtext);
             setCategoryData(rjson);
-            setButtonEvents();
         }
     };
     request.send();
@@ -108,7 +125,6 @@ function setCategoryData(dataSet) {
         divCatalog.classList.add("catalog");
         const div = document.createElement("div");
         div.classList.add("category");
-        div.setAttribute("onclick", `loadCatalogItems('${element.short_name}');`);
         const img = document.createElement("img");
         img.classList.add("bi");
         img.src = `images/catalog/${element.short_name}/${element.short_name}.jpg`;
@@ -120,5 +136,6 @@ function setCategoryData(dataSet) {
         divCatalog.appendChild(div);
         container.appendChild(divCatalog);
     });
+    setCategoryClickEvents();
 }
-loadCategoryData();
+setButtonEvents();
