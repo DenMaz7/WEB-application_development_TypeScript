@@ -104,6 +104,8 @@ function setCategoryData(dataSet) {
         return;
     container.innerHTML = '';
     dataSet.forEach((element) => {
+        const divCatalog = document.createElement("div");
+        divCatalog.classList.add("catalog");
         const div = document.createElement("div");
         div.classList.add("category");
         div.setAttribute("onclick", `$bh.loadCatalogItems('${element.short_name}');`);
@@ -115,7 +117,8 @@ function setCategoryData(dataSet) {
         h2.innerText = element.full_name;
         div.appendChild(img);
         div.appendChild(h2);
-        container.appendChild(div);
+        divCatalog.appendChild(div);
+        container.appendChild(divCatalog);
     });
 }
 loadCategoryData();
