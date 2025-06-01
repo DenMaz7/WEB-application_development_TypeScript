@@ -19,7 +19,7 @@ function setPositions(categoryData, categoryName) {
     container.innerHTML = '';
     categoryData.forEach((element) => {
         const divCatalog = document.createElement("div");
-        divCatalog.classList.add("catalog");
+        divCatalog.classList.add("catalog category");
         const bookDiv = document.createElement("div");
         bookDiv.classList.add("book");
         const img = document.createElement("img");
@@ -49,7 +49,7 @@ function setPositions(categoryData, categoryName) {
 let prevRand = null;
 function setButtonEvents() {
     const loadHome = document.getElementById("navHomeButton");
-    const loadCatalog = document.getElementById("navCatalogButton");
+    const loadCatalog = document.querySelectorAll("catalogButton");
     const randomCategory = document.getElementById("randomCategory");
     if (loadHome) {
         loadHome.addEventListener('click', () => {
@@ -62,7 +62,7 @@ function setButtonEvents() {
           <div class="overlay"></div>
           <div class="cta">
             <a href="#" class="button" id="loadCatalogBtn">Перейти до каталогу</a>
-            <a href="#" class="button" id="randomCategory">Випадкова категорія</a>
+            <a href="#" class="button catalogButton" id="randomCategory">Випадкова категорія</a>
           </div>
         </div>
       `;
@@ -70,9 +70,11 @@ function setButtonEvents() {
         });
     }
     if (loadCatalog) {
-        loadCatalog.addEventListener('click', () => {
-            loadCategoryData();
-        });
+        for (let i = 0; i < loadCatalog.length; i++) {
+            loadCatalog[i].addEventListener('click', () => {
+                loadCategoryData();
+            });
+        }
     }
     if (randomCategory) {
         randomCategory.addEventListener('click', () => {
