@@ -5,33 +5,34 @@ type CategoryItem = {
     author: string;
     description: string;
     price: number;
-  };
+};
 
-  type CategoryData = CategoryItem[];
+type CategoryData = CategoryItem[];
   
-  function getCategoryPositions(category: string): void {
-    const filename: string = `./${category}.json`;
-    const request: XMLHttpRequest = new XMLHttpRequest();
+function getCategoryPositions(category: string): void {
+  const filename: string = `./${category}.json`;
+  const request: XMLHttpRequest = new XMLHttpRequest();
   
-    request.open("GET", filename);
-    request.onreadystatechange = () => {
-      if (request.readyState === XMLHttpRequest.DONE) {
-        const rtext: string = request.responseText;
-        const rjson: CategoryData = JSON.parse(rtext);
-        setPositions(rjson, category);
-      }
-    };
-    request.send();
-  }
-  
-  getCategoryPositions("cakes");
-  
+  request.open("GET", filename);
+  request.onreadystatechange = () => {
+    if (request.readyState === XMLHttpRequest.DONE) {
+      const rtext: string = request.responseText;
+      const rjson: CategoryData = JSON.parse(rtext);
+      setPositions(rjson, category);
+    }
+  };
+  request.send();
+}
+
 function setPositions(categoryData: CategoryData, categoryName: string): void {
   const container: HTMLElement | null = document.getElementById("main");
   if (!container) return;
 
   container.innerHTML = '';
   categoryData.forEach((element: CategoryItem) => {
+    const divCatalog: HTMLDivElement = document.createElement("div");
+    divCatalog.classList.add("catalog");
+
     const bookDiv: HTMLDivElement = document.createElement("div");
     bookDiv.classList.add("book");
 
@@ -61,56 +62,52 @@ function setPositions(categoryData: CategoryData, categoryName: string): void {
     bookDiv.appendChild(desc);
     bookDiv.appendChild(price);
     bookDiv.appendChild(button);
-
-    container.appendChild(bookDiv);
+    divCatalog.appendChild(bookDiv);
+    container.appendChild(divCatalog);
   });
 }
   
-  let prevRand: number | null = null;
+let prevRand: number | null = null;
   
-  function setButtonEvents(): void {
-    const loadHome = document.getElementById("loadHome");
-    if (!loadHome) return;
-    const randomCategory = document.getElementById("randomCategory");
-    if (!randomCategory) return;
+function setButtonEvents(): void {
+  const loadHome = document.getElementById("loadHome");
+  if (!loadHome) return;
+  const randomCategory = document.getElementById("randomCategory");
+  if (!randomCategory) return;
   
-    loadHome.addEventListener('click', function(event: Event) {
-        event.preventDefault();
-        
-        const container: HTMLElement | null = document.getElementById("main");
-        if (!container) return;
-        
-        container.innerHTML = '<div class="hero"><img src="images/main.jpg"><div class="overlay"></div><div class="cta"><a href="#" class="button" id="loadHome">Перейти до каталогу</a><a href="#" class="button" id="randomCategory">Випадкова категорія</a></div></div>';
+  loadHome.addEventListener('click', function(event: Event) {
+      const container: HTMLElement | null = document.getElementById("main");
+      if (!container) return;
+      
+      container.innerHTML = '<div class="hero"><img src="images/main.jpg"><div class="overlay"></div><div class="cta"><a href="#" class="button" id="loadHome">Перейти до каталогу</a><a href="#" class="button" id="randomCategory">Випадкова категорія</a></div></div>';
+  });
+
+  randomCategory.addEventListener('click', function(event: Event) {
+    const categories: string[] = [];
+    document.querySelectorAll<HTMLElement>(".category").forEach(link => {
+      const id = link.getAttribute("id");
+      if (id) categories.push(id);
     });
 
-    randomCategory.addEventListener('click', function(event: Event) {
+    if (categories.length === 0) return;
+
+    let rand: number = Math.floor(Math.random() * categories.length);
+    while (rand === prevRand) {
+      rand = Math.floor(Math.random() * categories.length);
+    }
+    prevRand = rand;
+      
+    getCategoryPositions(categories[rand]);
+  });
+  
+  document.querySelectorAll<HTMLElement>('.category').forEach(link => {
+    link.addEventListener('click', function(event: Event) {
       event.preventDefault();
-      
-      const categories: string[] = [];
-      document.querySelectorAll<HTMLElement>(".category-link").forEach(link => {
-        const id = link.getAttribute("id");
-        if (id) categories.push(id);
-      });
-  
-      if (categories.length === 0) return;
-  
-      let rand: number = Math.floor(Math.random() * categories.length);
-      while (rand === prevRand) {
-        rand = Math.floor(Math.random() * categories.length);
-      }
-      prevRand = rand;
-      
-      getCategoryPositions(categories[rand]);
+      const category = this.getAttribute('id');
+      if (category) getCategoryPositions(category);
     });
-  
-    document.querySelectorAll<HTMLElement>('.category').forEach(link => {
-      link.addEventListener('click', function(event: Event) {
-        event.preventDefault();
-        const category = this.getAttribute('id');
-        if (category) getCategoryPositions(category);
-      });
-    });
-  }
+  });
+}
   
 function loadCategoryData(): void {
   const request: XMLHttpRequest = new XMLHttpRequest();
@@ -138,7 +135,7 @@ function setCategoryData(dataSet: { short_name: string; full_name: string }[]): 
 
     const div: HTMLDivElement = document.createElement("div");
     div.classList.add("category");
-    div.setAttribute("onclick", `$bh.loadCatalogItems('${element.short_name}');`);
+    div.setAttribute("onclick", `loadCatalogItems('${element.short_name}');`);
 
     const img: HTMLImageElement = document.createElement("img");
     img.classList.add("bi");

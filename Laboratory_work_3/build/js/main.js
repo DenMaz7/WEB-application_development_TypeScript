@@ -12,13 +12,14 @@ function getCategoryPositions(category) {
     };
     request.send();
 }
-getCategoryPositions("cakes");
 function setPositions(categoryData, categoryName) {
     const container = document.getElementById("main");
     if (!container)
         return;
     container.innerHTML = '';
     categoryData.forEach((element) => {
+        const divCatalog = document.createElement("div");
+        divCatalog.classList.add("catalog");
         const bookDiv = document.createElement("div");
         bookDiv.classList.add("book");
         const img = document.createElement("img");
@@ -41,7 +42,8 @@ function setPositions(categoryData, categoryName) {
         bookDiv.appendChild(desc);
         bookDiv.appendChild(price);
         bookDiv.appendChild(button);
-        container.appendChild(bookDiv);
+        divCatalog.appendChild(bookDiv);
+        container.appendChild(divCatalog);
     });
 }
 let prevRand = null;
@@ -53,16 +55,14 @@ function setButtonEvents() {
     if (!randomCategory)
         return;
     loadHome.addEventListener('click', function (event) {
-        event.preventDefault();
         const container = document.getElementById("main");
         if (!container)
             return;
         container.innerHTML = '<div class="hero"><img src="images/main.jpg"><div class="overlay"></div><div class="cta"><a href="#" class="button" id="loadHome">Перейти до каталогу</a><a href="#" class="button" id="randomCategory">Випадкова категорія</a></div></div>';
     });
     randomCategory.addEventListener('click', function (event) {
-        event.preventDefault();
         const categories = [];
-        document.querySelectorAll(".category-link").forEach(link => {
+        document.querySelectorAll(".category").forEach(link => {
             const id = link.getAttribute("id");
             if (id)
                 categories.push(id);
@@ -108,7 +108,7 @@ function setCategoryData(dataSet) {
         divCatalog.classList.add("catalog");
         const div = document.createElement("div");
         div.classList.add("category");
-        div.setAttribute("onclick", `$bh.loadCatalogItems('${element.short_name}');`);
+        div.setAttribute("onclick", `loadCatalogItems('${element.short_name}');`);
         const img = document.createElement("img");
         img.classList.add("bi");
         img.src = `images/catalog/${element.short_name}/${element.short_name}.jpg`;
