@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1,
+        "name": "Colorfull cookies",
+        "shortname": "Colorfull",
+        "description": " ",
+		"price": 30
+    },
+    {
+        "id": 2,
+        "name": "Lovely Cookies",
+        "shortname": "Lovely",
+        "description": " ",
+		"price": 50
+    },
+    {
+        "id": 3,
+        "name": "Soft Cookies",
+        "shortname": "Soft",
+        "description": " ",
+		"price": 50
+    },
+    {
+        "id": 4,
+        "name": "Strawberry Cream Cookies",
+        "shortname": "Strawberry Cream",
+        "description": " ",
+		"price": 40
+    }
+]
