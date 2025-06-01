@@ -3,28 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catalog of Conditional Goods or Services</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <title>Book Harbour</title>
+	<link rel="stylesheet" href="css/product.css">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/product.css">
     <script src="./js/main.js" defer></script>
 </head>
 <body>
-    <div class="navbar">
-        <div class="logo">
-            <!-- logo -->
-            <img src="../cupcake.png" alt="Logo">
-        </div>
-        <a href="#home">Home</a>
-        <div class="dropdown">
-            <a href="#" class="dropbtn">Catalog</a>
-            <div id="Categories" class="dropdown-content">
-            </div>
-        </div>
-        <a href="#specials" id="specials-link">Specials</a>
-    </div>
-    <div id="catalog-container">
-        
-    </div>
+  <div class="header">
+    <img src="/build/images/BookHarbour.png" alt="Logo" style="max-width: 80px; margin-bottom: 10px;">
+    <h1>BookHarbour Catalog</h1>
+  </div>
 
-    
+ <div class="navbar-nav">
+    <a href="#home" class="nav-link">Home</a>
+    <div class="dropdown">
+      <a href="#" class="nav-link dropbtn">Catalog</a>
+      <div id="Categories" class="dropdown-content"></div>
+    </div>
+    <a href="#specials" id="specials-link" class="nav-link">Specials</a>
+  </div>
+
+  <div class="main">
+    <div id="catalog-container" class="catalog"></div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-content">
+      <img src="/build/images/BookHarbour.png" alt="Footer Logo" style="max-width: 60px;">
+      <p>© 2025 BookHarbour</p>
+    </div>
+  </div>
 </body>
 </html>

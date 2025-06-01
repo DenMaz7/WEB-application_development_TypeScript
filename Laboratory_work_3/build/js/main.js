@@ -1,99 +1,129 @@
-"use strict";
-function getCategoryPositions(category) {
-    const filename = `./json/${category}.json`;
+// ------------------ HTML helpers ------------------
+function insertHtml(selector, html) {
+    const targetElem = document.querySelector(selector);
+    if (targetElem) {
+        targetElem.innerHTML = html;
+    }
+}
+function showLoading(selector) {
+    const html = "<div class='text-center'><img src='images/ajax-loader.gif'></div>";
+    insertHtml(selector, html);
+}
+function insertProperty(template, propName, propValue) {
+    const propToReplace = `{{${propName}}}`;
+    return template.replace(new RegExp(propToReplace, "g"), propValue);
+}
+function switchActive(activeElement) {
+    const homeButton = document.querySelector("#navHomeButton");
+    const catalogButton = document.querySelector("#navCatalogButton");
+    if (!homeButton || !catalogButton)
+        return;
+    if (activeElement === "catalog") {
+        homeButton.classList.remove("active");
+        catalogButton.classList.add("active");
+    }
+    else {
+        catalogButton.classList.remove("active");
+        homeButton.classList.add("active");
+    }
+}
+// ------------------ AJAX helper ------------------
+function sendGetRequest(url, callback, isJsonResponse = true) {
     const request = new XMLHttpRequest();
-    request.open("GET", filename);
     request.onreadystatechange = () => {
-        if (request.readyState === XMLHttpRequest.DONE) {
-            const rtext = request.responseText;
-            const rjson = JSON.parse(rtext);
-            setPositions(rjson, category);
+        if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+            const response = isJsonResponse ? JSON.parse(request.responseText) : request.responseText;
+            callback(response);
         }
     };
-    request.send();
+    request.open("GET", url, true);
+    request.send(null);
 }
-getCategoryPositions("cakes");
-function setPositions(categoryData, categoryName) {
-    const container = document.getElementById("catalog-container");
-    if (!container)
-        return;
-    container.innerHTML = '';
-    categoryData.forEach((element) => {
-        const div = document.createElement("div");
-        const img = document.createElement("img");
-        const h1 = document.createElement("h1");
-        const text = document.createElement("p");
-        const price = document.createElement("span");
-        text.innerHTML = element.description;
-        h1.innerHTML = element.name;
-        price.innerHTML = `Price: ${element.price}`;
-        const url = `./images/${categoryName}/${element.id}.jpg`;
-        img.setAttribute("src", url);
-        div.appendChild(h1);
-        div.appendChild(img);
-        div.appendChild(text);
-        div.appendChild(price);
-        container.appendChild(div);
+// ------------------ Constants ------------------
+const homeHtml = "snippets/home-snippets.html";
+const allCategoriesUrl = "data/categories.json";
+const categoryHtml = "snippets/category-snippets.html";
+const catalogItemsUrl = "data/catalog/";
+const catalogItemsTitleHtml = "snippets/catalog-items-title.html";
+const catalogItemHtml = "snippets/catalog-item.html";
+// ------------------ Loaders ------------------
+function loadHomeHtml() {
+    sendGetRequest(homeHtml, (response) => {
+        switchActive("home");
+        insertHtml("#main", response);
+    }, false);
+}
+function loadCatalogCategories() {
+    showLoading("#main");
+    sendGetRequest(allCategoriesUrl, buildAndShowCategoriesHTML);
+}
+function loadCatalogItems(categoryShort) {
+    showLoading("#main");
+    sendGetRequest(catalogItemsUrl + categoryShort + ".json", buildAndShowCatalogItemsHTML);
+}
+function loadRandomCategory() {
+    showLoading("#main");
+    sendGetRequest(allCategoriesUrl, (categories) => {
+        const randomIndex = Math.floor(Math.random() * categories.length);
+        const randomCategory = categories[randomIndex];
+        loadCatalogItems(randomCategory.short_name);
     });
 }
-let prevRand = null;
-function setButtonEvents() {
-    const specialsLink = document.getElementById("specials-link");
-    if (!specialsLink)
-        return;
-    specialsLink.addEventListener('click', function (event) {
-        event.preventDefault();
-        const categories = [];
-        document.querySelectorAll(".category-link").forEach(link => {
-            const id = link.getAttribute("id");
-            if (id)
-                categories.push(id);
-        });
-        if (categories.length === 0)
-            return;
-        let rand = Math.floor(Math.random() * categories.length);
-        while (rand === prevRand) {
-            rand = Math.floor(Math.random() * categories.length);
-        }
-        prevRand = rand;
-        getCategoryPositions(categories[rand]);
-    });
-    document.querySelectorAll('.category-link').forEach(link => {
-        link.addEventListener('click', function (event) {
-            event.preventDefault();
-            const category = this.getAttribute('id');
-            if (category)
-                getCategoryPositions(category);
-        });
-    });
+// ------------------ View Builders ------------------
+function buildAndShowCategoriesHTML(categories) {
+    sendGetRequest(categoryHtml, (template) => {
+        switchActive("catalog");
+        const viewHtml = buildCategoriesViewHtml(categories, template);
+        insertHtml("#main", viewHtml);
+    }, false);
 }
-function loadCategoryData() {
-    const request = new XMLHttpRequest();
-    request.open("GET", "../categories.json");
-    request.onreadystatechange = () => {
-        if (request.readyState === XMLHttpRequest.DONE) {
-            const rtext = request.responseText;
-            const rjson = JSON.parse(rtext);
-            setCategoryData(rjson);
-            setButtonEvents();
-        }
-    };
-    request.send();
+function buildCategoriesViewHtml(categories, template) {
+    let finalHtml = "<div class='catalog'>";
+    for (const cat of categories) {
+        let html = template;
+        html = insertProperty(html, "full_name", cat.full_name);
+        html = insertProperty(html, "short_name", cat.short_name);
+        finalHtml += html;
+    }
+    finalHtml += "</div>";
+    return finalHtml;
 }
-function setCategoryData(dataSet) {
-    const container = document.getElementById("Categories");
-    if (!container)
-        return;
-    dataSet.forEach((element) => {
-        const a = document.createElement("a");
-        a.classList.add("category-link");
-        a.innerText = element.name;
-        a.id = element.name;
-        const img = document.createElement("img");
-        const src = `./images/${element.name}/category.jpg`;
-        img.setAttribute("src", src);
-        a.appendChild(img);
-        container.appendChild(a);
+function buildAndShowCatalogItemsHTML(data) {
+    sendGetRequest(catalogItemsTitleHtml, (titleHtml) => {
+        sendGetRequest(catalogItemHtml, (itemHtml) => {
+            switchActive("catalog");
+            const viewHtml = buildCatalogItemsViewHtml(data, titleHtml, itemHtml);
+            insertHtml("#main", viewHtml);
+        }, false);
+    }, false);
+}
+function buildCatalogItemsViewHtml(data, titleHtml, itemHtml) {
+    titleHtml = insertProperty(titleHtml, "full_name", data.category.full_name);
+    let finalHtml = titleHtml + "<div class='catalog'>";
+    for (const item of data.catalog_items) {
+        let html = itemHtml;
+        html = insertProperty(html, "catShortName", data.category.short_name);
+        html = insertProperty(html, "short_name", item.short_name);
+        html = insertProperty(html, "full_name", item.full_name);
+        html = insertProperty(html, "author", item.author);
+        html = insertProperty(html, "description", item.description);
+        html = insertProperty(html, "price", item.price.toString());
+        finalHtml += html;
+    }
+    finalHtml += "</div>";
+    return finalHtml;
+}
+// ------------------ Initialization ------------------
+function init() {
+    document.addEventListener("DOMContentLoaded", () => {
+        showLoading("#main");
+        loadHomeHtml();
+        const homeBtn = document.querySelector("#navHomeButton");
+        const logoBtn = document.querySelector("#navLogo");
+        homeBtn === null || homeBtn === void 0 ? void 0 : homeBtn.addEventListener("click", loadHomeHtml);
+        logoBtn === null || logoBtn === void 0 ? void 0 : logoBtn.addEventListener("click", () => window.location.reload());
     });
 }
-loadCategoryData();
+init();
+// Публічні функції для виклику з HTML
+export { loadCatalogCategories, loadCatalogItems, loadRandomCategory };

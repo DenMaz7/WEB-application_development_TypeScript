@@ -1,122 +1,185 @@
-type CategoryItem = {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
+type Category = {
+  short_name: string;
+  full_name: string;
+};
+
+type CatalogItem = {
+  short_name: string;
+  full_name: string;
+  author: string;
+  description: string;
+  price: number;
+};
+
+type CatalogData = {
+  category: Category;
+  catalog_items: CatalogItem[];
+};
+
+// ------------------ HTML helpers ------------------
+
+function insertHtml(selector: string, html: string): void {
+  const targetElem = document.querySelector(selector);
+  if (targetElem) {
+    targetElem.innerHTML = html;
+  }
+}
+
+function showLoading(selector: string): void {
+  const html = "<div class='text-center'><img src='images/ajax-loader.gif'></div>";
+  insertHtml(selector, html);
+}
+
+function insertProperty(template: string, propName: string, propValue: string): string {
+  const propToReplace = `{{${propName}}}`;
+  return template.replace(new RegExp(propToReplace, "g"), propValue);
+}
+
+function switchActive(activeElement: "home" | "catalog"): void {
+  const homeButton = document.querySelector("#navHomeButton");
+  const catalogButton = document.querySelector("#navCatalogButton");
+
+  if (!homeButton || !catalogButton) return;
+
+  if (activeElement === "catalog") {
+    homeButton.classList.remove("active");
+    catalogButton.classList.add("active");
+  } else {
+    catalogButton.classList.remove("active");
+    homeButton.classList.add("active");
+  }
+}
+
+// ------------------ AJAX helper ------------------
+
+function sendGetRequest(
+  url: string,
+  callback: (response: any) => void,
+  isJsonResponse: boolean = true
+): void {
+  const request = new XMLHttpRequest();
+  request.onreadystatechange = () => {
+    if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+      const response = isJsonResponse ? JSON.parse(request.responseText) : request.responseText;
+      callback(response);
+    }
   };
-  
-  type CategoryData = CategoryItem[];
-  
-  function getCategoryPositions(category: string): void {
-    const filename: string = `./json/${category}.json`;
-    const request: XMLHttpRequest = new XMLHttpRequest();
-  
-    request.open("GET", filename);
-    request.onreadystatechange = () => {
-      if (request.readyState === XMLHttpRequest.DONE) {
-        const rtext: string = request.responseText;
-        const rjson: CategoryData = JSON.parse(rtext);
-        setPositions(rjson, category);
-      }
-    };
-    request.send();
+  request.open("GET", url, true);
+  request.send(null);
+}
+
+// ------------------ Constants ------------------
+
+const homeHtml = "snippets/home-snippets.html";
+const allCategoriesUrl = "data/categories.json";
+const categoryHtml = "snippets/category-snippets.html";
+const catalogItemsUrl = "data/catalog/";
+const catalogItemsTitleHtml = "snippets/catalog-items-title.html";
+const catalogItemHtml = "snippets/catalog-item.html";
+
+// ------------------ Loaders ------------------
+
+function loadHomeHtml(): void {
+  sendGetRequest(homeHtml, (response: string) => {
+    switchActive("home");
+    insertHtml("#main", response);
+  }, false);
+}
+
+function loadCatalogCategories(): void {
+  showLoading("#main");
+  sendGetRequest(allCategoriesUrl, buildAndShowCategoriesHTML);
+}
+
+function loadCatalogItems(categoryShort: string): void {
+  showLoading("#main");
+  sendGetRequest(catalogItemsUrl + categoryShort + ".json", buildAndShowCatalogItemsHTML);
+}
+
+function loadRandomCategory(): void {
+  showLoading("#main");
+  sendGetRequest(allCategoriesUrl, (categories: Category[]) => {
+    const randomIndex = Math.floor(Math.random() * categories.length);
+    const randomCategory = categories[randomIndex];
+    loadCatalogItems(randomCategory.short_name);
+  });
+}
+
+// ------------------ View Builders ------------------
+
+function buildAndShowCategoriesHTML(categories: Category[]): void {
+  sendGetRequest(categoryHtml, (template: string) => {
+    switchActive("catalog");
+    const viewHtml = buildCategoriesViewHtml(categories, template);
+    insertHtml("#main", viewHtml);
+  }, false);
+}
+
+function buildCategoriesViewHtml(categories: Category[], template: string): string {
+  let finalHtml = "<div class='catalog'>";
+  for (const cat of categories) {
+    let html = template;
+    html = insertProperty(html, "full_name", cat.full_name);
+    html = insertProperty(html, "short_name", cat.short_name);
+    finalHtml += html;
   }
-  
-  getCategoryPositions("cakes");
-  
-  function setPositions(categoryData: CategoryData, categoryName: string): void {
-    const container: HTMLElement | null = document.getElementById("catalog-container");
-    if (!container) return;
-  
-    container.innerHTML = '';
-    categoryData.forEach((element: CategoryItem) => {
-      const div: HTMLDivElement = document.createElement("div");
-      const img: HTMLImageElement = document.createElement("img");
-      const h1: HTMLHeadingElement = document.createElement("h1");
-      const text: HTMLParagraphElement = document.createElement("p");
-      const price: HTMLSpanElement = document.createElement("span");
-  
-      text.innerHTML = element.description;
-      h1.innerHTML = element.name;
-      price.innerHTML = `Price: ${element.price}`;
-      const url: string = `./images/${categoryName}/${element.id}.jpg`;
-      img.setAttribute("src", url);
-  
-      div.appendChild(h1);
-      div.appendChild(img);
-      div.appendChild(text);
-      div.appendChild(price);
-      container.appendChild(div);
-    });
+  finalHtml += "</div>";
+  return finalHtml;
+}
+
+function buildAndShowCatalogItemsHTML(data: CatalogData): void {
+  sendGetRequest(catalogItemsTitleHtml, (titleHtml: string) => {
+    sendGetRequest(catalogItemHtml, (itemHtml: string) => {
+      switchActive("catalog");
+      const viewHtml = buildCatalogItemsViewHtml(data, titleHtml, itemHtml);
+      insertHtml("#main", viewHtml);
+    }, false);
+  }, false);
+}
+
+function buildCatalogItemsViewHtml(
+  data: CatalogData,
+  titleHtml: string,
+  itemHtml: string
+): string {
+  titleHtml = insertProperty(titleHtml, "full_name", data.category.full_name);
+  let finalHtml = titleHtml + "<div class='catalog'>";
+
+  for (const item of data.catalog_items) {
+    let html = itemHtml;
+    html = insertProperty(html, "catShortName", data.category.short_name);
+    html = insertProperty(html, "short_name", item.short_name);
+    html = insertProperty(html, "full_name", item.full_name);
+    html = insertProperty(html, "author", item.author);
+    html = insertProperty(html, "description", item.description);
+    html = insertProperty(html, "price", item.price.toString());
+    finalHtml += html;
   }
-  
-  let prevRand: number | null = null;
-  
-  function setButtonEvents(): void {
-    const specialsLink = document.getElementById("specials-link");
-    if (!specialsLink) return;
-  
-    specialsLink.addEventListener('click', function(event: Event) {
-      event.preventDefault();
-      
-      const categories: string[] = [];
-      document.querySelectorAll<HTMLElement>(".category-link").forEach(link => {
-        const id = link.getAttribute("id");
-        if (id) categories.push(id);
-      });
-  
-      if (categories.length === 0) return;
-  
-      let rand: number = Math.floor(Math.random() * categories.length);
-      while (rand === prevRand) {
-        rand = Math.floor(Math.random() * categories.length);
-      }
-      prevRand = rand;
-      
-      getCategoryPositions(categories[rand]);
-    });
-  
-    document.querySelectorAll<HTMLElement>('.category-link').forEach(link => {
-      link.addEventListener('click', function(event: Event) {
-        event.preventDefault();
-        const category = this.getAttribute('id');
-        if (category) getCategoryPositions(category);
-      });
-    });
-  }
-  
-  function loadCategoryData(): void {
-    const request: XMLHttpRequest = new XMLHttpRequest();
-    request.open("GET", "../categories.json");
-    request.onreadystatechange = () => {
-      if (request.readyState === XMLHttpRequest.DONE) {
-        const rtext: string = request.responseText;
-        const rjson: { name: string }[] = JSON.parse(rtext);
-        setCategoryData(rjson);
-        setButtonEvents();
-      }
-    };
-    request.send();
-  }
-  
-  function setCategoryData(dataSet: { name: string }[]): void {
-    const container: HTMLElement | null = document.getElementById("Categories");
-    if (!container) return;
-  
-    dataSet.forEach((element) => {
-      const a: HTMLAnchorElement = document.createElement("a");
-      a.classList.add("category-link");
-      a.innerText = element.name;
-      a.id = element.name;
-  
-      const img: HTMLImageElement = document.createElement("img");
-      const src: string = `./images/${element.name}/category.jpg`;
-      img.setAttribute("src", src);
-  
-      a.appendChild(img);
-      container.appendChild(a);
-    });
-  }
-  
-  loadCategoryData();
-  
+
+  finalHtml += "</div>";
+  return finalHtml;
+}
+
+// ------------------ Initialization ------------------
+
+function init(): void {
+  document.addEventListener("DOMContentLoaded", () => {
+    showLoading("#main");
+    loadHomeHtml();
+
+    const homeBtn = document.querySelector("#navHomeButton");
+    const logoBtn = document.querySelector("#navLogo");
+
+    homeBtn?.addEventListener("click", loadHomeHtml);
+    logoBtn?.addEventListener("click", () => window.location.reload());
+  });
+}
+
+init();
+
+// Публічні функції для виклику з HTML
+export {
+  loadCatalogCategories,
+  loadCatalogItems,
+  loadRandomCategory
+};
