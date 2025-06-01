@@ -1,129 +1,117 @@
-// ------------------ HTML helpers ------------------
-function insertHtml(selector, html) {
-    const targetElem = document.querySelector(selector);
-    if (targetElem) {
-        targetElem.innerHTML = html;
+export class App {
+    constructor() {
+        this.homeHtml = "build/snippets/home-snippets.html";
+        this.allCategoriesUrl = "build/data/categories.json";
+        this.categoryHtml = "build/snippets/category-snippets.html";
+        this.catalogItemsTitleHtml = "build/snippets/catalog-items-title.html";
+        this.catalogItemHtml = "build/snippets/catalog-items.html";
+        this.catalogItemsUrl = "build/data/catalog/";
     }
-}
-function showLoading(selector) {
-    const html = "<div class='text-center'><img src='images/ajax-loader.gif'></div>";
-    insertHtml(selector, html);
-}
-function insertProperty(template, propName, propValue) {
-    const propToReplace = `{{${propName}}}`;
-    return template.replace(new RegExp(propToReplace, "g"), propValue);
-}
-function switchActive(activeElement) {
-    const homeButton = document.querySelector("#navHomeButton");
-    const catalogButton = document.querySelector("#navCatalogButton");
-    if (!homeButton || !catalogButton)
-        return;
-    if (activeElement === "catalog") {
-        homeButton.classList.remove("active");
-        catalogButton.classList.add("active");
+    init() {
+        var _a, _b, _c;
+        this.showLoading("#main");
+        this.loadHomeHtml();
+        (_a = document.querySelector("#navHomeButton")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => this.loadHomeHtml());
+        (_b = document.querySelector("#navCatalogButton")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => this.loadCatalogCategories());
+        (_c = document.querySelector("#navLogo")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", () => window.location.reload());
+        // Додаємо обробники динамічних кнопок (делегування)
+        document.body.addEventListener("click", (e) => {
+            const target = e.target;
+            if (target.matches(".load-category")) {
+                const category = target.dataset.category;
+                if (category)
+                    this.loadCatalogItems(category);
+            }
+            else if (target.matches(".random-category")) {
+                this.loadRandomCategory();
+            }
+        });
     }
-    else {
-        catalogButton.classList.remove("active");
-        homeButton.classList.add("active");
+    insertHtml(selector, html) {
+        const elem = document.querySelector(selector);
+        if (elem)
+            elem.innerHTML = html;
     }
-}
-// ------------------ AJAX helper ------------------
-function sendGetRequest(url, callback, isJsonResponse = true) {
-    const request = new XMLHttpRequest();
-    request.onreadystatechange = () => {
-        if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
-            const response = isJsonResponse ? JSON.parse(request.responseText) : request.responseText;
-            callback(response);
-        }
-    };
-    request.open("GET", url, true);
-    request.send(null);
-}
-// ------------------ Constants ------------------
-const homeHtml = "build/snippets/home-snippets.html";
-const allCategoriesUrl = "build/data/categories.json";
-const categoryHtml = "build/snippets/category-snippets.html";
-const catalogItemsUrl = "build/data/catalog/";
-const catalogItemsTitleHtml = "build/snippets/catalog-items-title.html";
-const catalogItemHtml = "build/snippets/catalog-item.html";
-// ------------------ Loaders ------------------
-function loadHomeHtml() {
-    sendGetRequest(homeHtml, (response) => {
-        switchActive("home");
-        insertHtml("#main", response);
-    }, false);
-}
-function loadCatalogCategories() {
-    showLoading("#main");
-    sendGetRequest(allCategoriesUrl, buildAndShowCategoriesHTML);
-}
-function loadCatalogItems(categoryShort) {
-    showLoading("#main");
-    sendGetRequest(catalogItemsUrl + categoryShort + ".json", buildAndShowCatalogItemsHTML);
-}
-function loadRandomCategory() {
-    showLoading("#main");
-    sendGetRequest(allCategoriesUrl, (categories) => {
-        const randomIndex = Math.floor(Math.random() * categories.length);
-        const randomCategory = categories[randomIndex];
-        loadCatalogItems(randomCategory.short_name);
-    });
-}
-// ------------------ View Builders ------------------
-function buildAndShowCategoriesHTML(categories) {
-    sendGetRequest(categoryHtml, (template) => {
-        switchActive("catalog");
-        const viewHtml = buildCategoriesViewHtml(categories, template);
-        insertHtml("#main", viewHtml);
-    }, false);
-}
-function buildCategoriesViewHtml(categories, template) {
-    let finalHtml = "<div class='catalog'>";
-    for (const cat of categories) {
-        let html = template;
-        html = insertProperty(html, "full_name", cat.full_name);
-        html = insertProperty(html, "short_name", cat.short_name);
-        finalHtml += html;
+    insertProperty(template, propName, propValue) {
+        const propToReplace = `{{${propName}}}`;
+        return template.replace(new RegExp(propToReplace, "g"), propValue);
     }
-    finalHtml += "</div>";
-    return finalHtml;
-}
-function buildAndShowCatalogItemsHTML(data) {
-    sendGetRequest(catalogItemsTitleHtml, (titleHtml) => {
-        sendGetRequest(catalogItemHtml, (itemHtml) => {
-            switchActive("catalog");
-            const viewHtml = buildCatalogItemsViewHtml(data, titleHtml, itemHtml);
-            insertHtml("#main", viewHtml);
-        }, false);
-    }, false);
-}
-function buildCatalogItemsViewHtml(data, titleHtml, itemHtml) {
-    titleHtml = insertProperty(titleHtml, "full_name", data.category.full_name);
-    let finalHtml = titleHtml + "<div class='catalog'>";
-    for (const item of data.catalog_items) {
-        let html = itemHtml;
-        html = insertProperty(html, "catShortName", data.category.short_name);
-        html = insertProperty(html, "short_name", item.short_name);
-        html = insertProperty(html, "full_name", item.full_name);
-        html = insertProperty(html, "author", item.author);
-        html = insertProperty(html, "description", item.description);
-        html = insertProperty(html, "price", item.price.toString());
-        finalHtml += html;
+    showLoading(selector) {
+        const html = `<div class='text-center'><img src='images/ajax-loader.gif'></div>`;
+        this.insertHtml(selector, html);
     }
-    finalHtml += "</div>";
-    return finalHtml;
-}
-// ------------------ Initialization ------------------
-function init() {
-    document.addEventListener("DOMContentLoaded", () => {
-        showLoading("#main");
-        loadHomeHtml();
+    switchActive(active) {
         const homeBtn = document.querySelector("#navHomeButton");
-        const logoBtn = document.querySelector("#navLogo");
-        homeBtn === null || homeBtn === void 0 ? void 0 : homeBtn.addEventListener("click", loadHomeHtml);
-        logoBtn === null || logoBtn === void 0 ? void 0 : logoBtn.addEventListener("click", () => window.location.reload());
-    });
+        const catBtn = document.querySelector("#navCatalogButton");
+        if (!homeBtn || !catBtn)
+            return;
+        homeBtn.classList.toggle("active", active === "home");
+        catBtn.classList.toggle("active", active === "catalog");
+    }
+    sendGetRequest(url, callback, isJson = true) {
+        const xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                const response = isJson ? JSON.parse(xhr.responseText) : xhr.responseText;
+                callback(response);
+            }
+        };
+        xhr.open("GET", url, true);
+        xhr.send();
+    }
+    loadHomeHtml() {
+        this.sendGetRequest(this.homeHtml, (html) => {
+            this.switchActive("home");
+            this.insertHtml("#main", html);
+        }, false);
+    }
+    loadCatalogCategories() {
+        this.showLoading("#main");
+        this.sendGetRequest(this.allCategoriesUrl, (categories) => this.buildAndShowCategoriesHTML(categories));
+    }
+    loadCatalogItems(shortName) {
+        this.showLoading("#main");
+        this.sendGetRequest(this.catalogItemsUrl + shortName + ".json", (data) => this.buildAndShowCatalogItemsHTML(data));
+    }
+    loadRandomCategory() {
+        this.showLoading("#main");
+        this.sendGetRequest(this.allCategoriesUrl, (categories) => {
+            const random = categories[Math.floor(Math.random() * categories.length)];
+            this.loadCatalogItems(random.short_name);
+        });
+    }
+    buildAndShowCategoriesHTML(categories) {
+        this.sendGetRequest(this.categoryHtml, (template) => {
+            this.switchActive("catalog");
+            let html = "<div class='catalog'>";
+            for (const cat of categories) {
+                let temp = this.insertProperty(template, "full_name", cat.full_name);
+                temp = this.insertProperty(temp, "short_name", cat.short_name);
+                html += temp;
+            }
+            html += "</div>";
+            this.insertHtml("#main", html);
+        }, false);
+    }
+    buildAndShowCatalogItemsHTML(data) {
+        this.sendGetRequest(this.catalogItemsTitleHtml, (titleTemplate) => {
+            this.sendGetRequest(this.catalogItemHtml, (itemTemplate) => {
+                this.switchActive("catalog");
+                let titleHtml = this.insertProperty(titleTemplate, "full_name", data.category.full_name);
+                let html = titleHtml + "<div class='catalog'>";
+                for (const item of data.catalog_items) {
+                    let temp = itemTemplate;
+                    temp = this.insertProperty(temp, "catShortName", data.category.short_name);
+                    temp = this.insertProperty(temp, "short_name", item.short_name);
+                    temp = this.insertProperty(temp, "full_name", item.full_name);
+                    temp = this.insertProperty(temp, "author", item.author);
+                    temp = this.insertProperty(temp, "description", item.description);
+                    temp = this.insertProperty(temp, "price", item.price.toString());
+                    html += temp;
+                }
+                html += "</div>";
+                this.insertHtml("#main", html);
+            }, false);
+        }, false);
+    }
 }
-init();
-// Публічні функції для виклику з HTML
-export { loadCatalogCategories, loadCatalogItems, loadRandomCategory };
