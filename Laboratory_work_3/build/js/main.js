@@ -46,9 +46,19 @@ function setPositions(categoryData, categoryName) {
 }
 let prevRand = null;
 function setButtonEvents() {
+    const loadHome = document.getElementById("loadHome");
+    if (!loadHome)
+        return;
     const randomCategory = document.getElementById("randomCategory");
     if (!randomCategory)
         return;
+    loadHome.addEventListener('click', function (event) {
+        event.preventDefault();
+        const container = document.getElementById("main");
+        if (!container)
+            return;
+        container.innerHTML = '<div class="hero"><img src="images/main.jpg"><div class="overlay"></div><div class="cta"><a href="#" class="button" id="loadHome">Перейти до каталогу</a><a href="#" class="button" id="randomCategory">Випадкова категорія</a></div></div>';
+    });
     randomCategory.addEventListener('click', function (event) {
         event.preventDefault();
         const categories = [];
@@ -66,7 +76,7 @@ function setButtonEvents() {
         prevRand = rand;
         getCategoryPositions(categories[rand]);
     });
-    document.querySelectorAll('.category-link').forEach(link => {
+    document.querySelectorAll('.category').forEach(link => {
         link.addEventListener('click', function (event) {
             event.preventDefault();
             const category = this.getAttribute('id');

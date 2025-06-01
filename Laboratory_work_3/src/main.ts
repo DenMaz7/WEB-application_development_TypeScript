@@ -69,9 +69,20 @@ function setPositions(categoryData: CategoryData, categoryName: string): void {
   let prevRand: number | null = null;
   
   function setButtonEvents(): void {
+    const loadHome = document.getElementById("loadHome");
+    if (!loadHome) return;
     const randomCategory = document.getElementById("randomCategory");
     if (!randomCategory) return;
   
+    loadHome.addEventListener('click', function(event: Event) {
+        event.preventDefault();
+        
+        const container: HTMLElement | null = document.getElementById("main");
+        if (!container) return;
+        
+        container.innerHTML = '<div class="hero"><img src="images/main.jpg"><div class="overlay"></div><div class="cta"><a href="#" class="button" id="loadHome">Перейти до каталогу</a><a href="#" class="button" id="randomCategory">Випадкова категорія</a></div></div>';
+    });
+
     randomCategory.addEventListener('click', function(event: Event) {
       event.preventDefault();
       
@@ -92,7 +103,7 @@ function setPositions(categoryData: CategoryData, categoryName: string): void {
       getCategoryPositions(categories[rand]);
     });
   
-    document.querySelectorAll<HTMLElement>('.category-link').forEach(link => {
+    document.querySelectorAll<HTMLElement>('.category').forEach(link => {
       link.addEventListener('click', function(event: Event) {
         event.preventDefault();
         const category = this.getAttribute('id');
@@ -141,5 +152,5 @@ function setCategoryData(dataSet: { short_name: string; full_name: string }[]): 
 }
 
   
-  loadCategoryData();
+loadCategoryData();
   
