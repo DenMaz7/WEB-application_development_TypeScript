@@ -19,7 +19,7 @@ function setPositions(categoryData, categoryName) {
     container.innerHTML = '';
     categoryData.forEach((element) => {
         const divCatalog = document.createElement("div");
-        divCatalog.classList.add("catalog category");
+        divCatalog.classList.add("catalog");
         const bookDiv = document.createElement("div");
         bookDiv.classList.add("book");
         const img = document.createElement("img");

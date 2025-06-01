@@ -31,7 +31,7 @@ function setPositions(categoryData: CategoryData, categoryName: string): void {
   container.innerHTML = '';
   categoryData.forEach((element: CategoryItem) => {
     const divCatalog: HTMLDivElement = document.createElement("div");
-    divCatalog.classList.add("catalog category");
+    divCatalog.classList.add("catalog");
 
     const bookDiv: HTMLDivElement = document.createElement("div");
     bookDiv.classList.add("book");
