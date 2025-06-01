@@ -70,12 +70,12 @@ function sendGetRequest(
 
 // ------------------ Constants ------------------
 
-const homeHtml = "snippets/home-snippets.html";
-const allCategoriesUrl = "data/categories.json";
-const categoryHtml = "snippets/category-snippets.html";
-const catalogItemsUrl = "data/catalog/";
-const catalogItemsTitleHtml = "snippets/catalog-items-title.html";
-const catalogItemHtml = "snippets/catalog-item.html";
+const homeHtml = "build/snippets/home-snippets.html";
+const allCategoriesUrl = "build/data/categories.json";
+const categoryHtml = "build/snippets/category-snippets.html";
+const catalogItemsUrl = "build/data/catalog/";
+const catalogItemsTitleHtml = "build/snippets/catalog-items-title.html";
+const catalogItemHtml = "build/snippets/catalog-item.html";
 
 // ------------------ Loaders ------------------
 
