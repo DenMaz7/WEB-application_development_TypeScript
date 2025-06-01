@@ -151,7 +151,7 @@ function setCategoryData(dataSet: { short_name: string; full_name: string }[]): 
 
     const img = document.createElement("img");
     img.classList.add("bi");
-    img.src = `images/catalog/${element.short_name}/${element.short_name}.jpg`;
+    img.src = `images/${element.short_name}/${element.short_name}.jpg`;
     img.alt = element.full_name;
 
     const h2 = document.createElement("h2");

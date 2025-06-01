@@ -121,7 +121,7 @@ function setCategoryData(dataSet) {
         div.setAttribute("id", element.short_name); // <--- обов’язково!
         const img = document.createElement("img");
         img.classList.add("bi");
-        img.src = `images/catalog/${element.short_name}/${element.short_name}.jpg`;
+        img.src = `images/${element.short_name}/${element.short_name}.jpg`;
         img.alt = element.full_name;
         const h2 = document.createElement("h2");
         h2.innerText = element.full_name;
