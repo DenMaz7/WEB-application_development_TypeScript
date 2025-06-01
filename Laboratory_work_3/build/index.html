@@ -1,38 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Harbour</title>
+    <meta charset="utf-8">
+	<title>Book Harbour</title>
 	<link rel="stylesheet" href="css/product.css">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/product.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
     <script src="./js/main.js" defer></script>
 </head>
 <body>
-  <div class="header">
-    <img src="/build/images/BookHarbour.png" alt="Logo" style="max-width: 80px; margin-bottom: 10px;">
-    <h1>BookHarbour Catalog</h1>
-  </div>
 
- <div class="navbar-nav">
-    <a href="#home" class="nav-link">Home</a>
-    <div class="dropdown">
-      <a href="#" class="nav-link dropbtn">Catalog</a>
-      <div id="Categories" class="dropdown-content"></div>
-    </div>
-    <a href="#specials" id="specials-link" class="nav-link">Specials</a>
-  </div>
+    <header class="navbar navbar-expand-md bg-dark sticky-top border-bottom" data-bs-theme="dark">
+        <div class="container">
+            <div class="offcanvas-body">
+            <ul class="navbar-nav flex-grow-1 justify-content-between">
+                <li class="nav-item"><a class="nav-link" href="#">
+                <img id="navLogo" class="bi" width="77" height="77" src="build/images/BookHarbour.png">
+                </a></li>
+                <li class="nav-item"><a id="navHomeButton" class="nav-link active" href="#">Home</a></li>
+                <li class="nav-item"><a id="navCatalogButton" class="nav-link" href="#" onclick="$bh.loadCatalogCategories();">Catalog</a></li>
+                <li class="nav-item"></li>
+                <li class="nav-item"></li>
+                <li class="nav-item"></li>
+                <li class="nav-item"></li>
+                <li class="nav-item"></li>
+                <li class="nav-item"></li>
+                <li class="nav-item"><a class="nav-link" href="#">
+                    <img class="bi" width="40" height="40" src="build/images/Cart.png">
+                </a></li>
+            </ul>
+            </div>
+        </div>
+    </header>
 
-  <div class="main">
-    <div id="catalog-container" class="catalog"></div>
-  </div>
+    <div id="main"></div>
 
-  <div class="footer">
-    <div class="footer-content">
-      <img src="/build/images/BookHarbour.png" alt="Footer Logo" style="max-width: 60px;">
-      <p>© 2025 BookHarbour</p>
-    </div>
-  </div>
+    <footer class="bg-dark border-bottom" data-bs-theme="dark">
+        <div class="footer-content">
+            <img width="50" height="50" src="build/images/BookHarbour.png" alt="Лого магазину">
+            <p>&copy; 2024</p>
+        </div>
+    </footer>
 </body>
 </html>
