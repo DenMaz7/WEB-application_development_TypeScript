@@ -8,7 +8,7 @@ type CategoryItem = {
   type CategoryData = CategoryItem[];
   
   function getCategoryPositions(category: string): void {
-    const filename: string = `./${category}.json`;
+    const filename: string = `./json/${category}.json`;
     const request: XMLHttpRequest = new XMLHttpRequest();
   
     request.open("GET", filename);
