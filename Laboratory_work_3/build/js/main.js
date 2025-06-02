@@ -160,7 +160,7 @@ function setCategoryData(dataSet) {
     dataSet.forEach((element) => {
         const div = document.createElement("div");
         div.classList.add("category");
-        div.setAttribute("id", element.short_name); // <--- обов’язково!
+        div.setAttribute("id", element.short_name);
         const img = document.createElement("img");
         img.classList.add("bi");
         img.src = `images/${element.short_name}/${element.short_name}.jpg`;

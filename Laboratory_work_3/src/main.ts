@@ -195,7 +195,7 @@ function setCategoryData(dataSet: { short_name: string; full_name: string }[]): 
   dataSet.forEach((element) => {
     const div = document.createElement("div");
     div.classList.add("category");
-    div.setAttribute("id", element.short_name); // <--- обов’язково!
+    div.setAttribute("id", element.short_name); 
 
     const img = document.createElement("img");
     img.classList.add("bi");
