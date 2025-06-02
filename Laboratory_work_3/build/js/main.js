@@ -25,10 +25,10 @@ function setPositions(categoryData, categoryName) {
     const container = document.getElementById("main");
     if (!container)
         return;
+    const divCatalog = document.createElement("div");
+    divCatalog.classList.add("catalog");
     container.innerHTML = '';
     categoryData.forEach((element) => {
-        const divCatalog = document.createElement("div");
-        divCatalog.classList.add("catalog");
         const bookDiv = document.createElement("div");
         bookDiv.classList.add("book");
         const img = document.createElement("img");
@@ -154,10 +154,10 @@ function setCategoryData(dataSet) {
     const container = document.getElementById("main");
     if (!container)
         return;
+    const divCatalog = document.createElement("div");
+    divCatalog.classList.add("catalog");
     container.innerHTML = '';
     dataSet.forEach((element) => {
-        const divCatalog = document.createElement("div");
-        divCatalog.classList.add("catalog");
         const div = document.createElement("div");
         div.classList.add("category");
         div.setAttribute("id", element.short_name); // <--- обов’язково!

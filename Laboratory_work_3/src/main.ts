@@ -37,11 +37,11 @@ function setPositions(categoryData: CategoryData, categoryName: string): void {
   const container = document.getElementById("main");
   if (!container) return;
 
-  container.innerHTML = '';
-  categoryData.forEach((element) => {
     const divCatalog = document.createElement("div");
     divCatalog.classList.add("catalog");
 
+  container.innerHTML = '';
+  categoryData.forEach((element) => {
     const bookDiv = document.createElement("div");
     bookDiv.classList.add("book");
 
@@ -188,11 +188,11 @@ function setCategoryData(dataSet: { short_name: string; full_name: string }[]): 
   const container = document.getElementById("main");
   if (!container) return;
 
-  container.innerHTML = '';
-  dataSet.forEach((element) => {
     const divCatalog = document.createElement("div");
     divCatalog.classList.add("catalog");
 
+  container.innerHTML = '';
+  dataSet.forEach((element) => {
     const div = document.createElement("div");
     div.classList.add("category");
     div.setAttribute("id", element.short_name); // <--- обов’язково!
