@@ -47,26 +47,44 @@ function getCategoryPositions(url, categoryShortName) {
             if (request.status === 200) {
                 try {
                     console.log("Отримані дані:", request.responseText);
-                    const products = JSON.parse(request.responseText);
-                    // Перевіряємо чи products є масивом
-                    if (!Array.isArray(products)) {
-                        console.error("Дані товарів повинні бути масивом. Отримано:", typeof products, products);
-                        // Якщо це об'єкт з масивом всередині, спробуємо його витягнути
-                        if (typeof products === 'object' && products !== null) {
-                            const possibleArrays = Object(products).filter(Array.isArray);
+                    const data = JSON.parse(request.responseText);
+                    let products = [];
+                    // Перевіряємо різні можливі структури даних
+                    if (Array.isArray(data)) {
+                        // Якщо дані вже є масивом
+                        products = data;
+                    }
+                    else if (data && typeof data === 'object') {
+                        // Якщо це об'єкт, шукаємо масив товарів
+                        if (Array.isArray(data.catalog_items)) {
+                            products = data.catalog_items;
+                        }
+                        else if (Array.isArray(data.items)) {
+                            products = data.items;
+                        }
+                        else if (Array.isArray(data.products)) {
+                            products = data.products;
+                        }
+                        else {
+                            // Шукаємо будь-який масив у об'єкті
+                            const possibleArrays = Object(data).filter(Array.isArray);
                             if (possibleArrays.length > 0) {
-                                console.log("Знайдено масив у об'єкті, використовуємо його");
-                                displayCategoryProducts(possibleArrays[0], categoryShortName);
-                                return;
+                                products = possibleArrays[0];
                             }
                         }
+                    }
+                    if (products.length === 0) {
+                        console.error("Не вдалося знайти масив товарів у даних:", data);
+                        displayNoProducts(categoryShortName);
                         return;
                     }
+                    console.log("Знайдено товарів:", products.length);
                     displayCategoryProducts(products, categoryShortName);
                 }
                 catch (err) {
                     console.error("Помилка парсингу даних товарів:", err);
                     console.error("Текст відповіді:", request.responseText);
+                    displayNoProducts(categoryShortName);
                 }
             }
             else {
@@ -74,10 +92,34 @@ function getCategoryPositions(url, categoryShortName) {
                 if (request.status === 404) {
                     console.error("Файл не знайдено. Перевірте чи існує файл:", url);
                 }
+                displayNoProducts(categoryShortName);
             }
         }
     };
     request.send();
+}
+// Додана функція для відображення повідомлення про відсутність товарів
+function displayNoProducts(categoryShortName) {
+    const container = document.getElementById("main");
+    if (!container)
+        return;
+    container.innerHTML = '';
+    const categoryHeader = document.createElement("h1");
+    categoryHeader.textContent = `Категорія: ${categoryShortName}`;
+    container.appendChild(categoryHeader);
+    const backButton = document.createElement("button");
+    backButton.textContent = "Назад до категорій";
+    backButton.classList.add("back-button");
+    backButton.addEventListener('click', () => {
+        loadCategoryData();
+    });
+    container.appendChild(backButton);
+    const message = document.createElement("p");
+    message.textContent = "Товари для цієї категорії не знайдені або файл не існує.";
+    message.style.textAlign = "center";
+    message.style.margin = "20px";
+    message.style.fontSize = "18px";
+    container.appendChild(message);
 }
 // Додана функція для відображення товарів категорії
 function displayCategoryProducts(products, categoryShortName) {
@@ -109,21 +151,31 @@ function displayCategoryProducts(products, categoryShortName) {
         if (product.image) {
             const img = document.createElement("img");
             img.src = product.image;
-            img.alt = product.name || "Товар";
+            img.alt = product.full_name || product.name || "Товар";
             img.classList.add("product-image");
             productDiv.appendChild(img);
         }
-        // Додаємо назву товару
-        if (product.name) {
+        // Додаємо назву товару (підтримуємо різні поля)
+        const productName = product.full_name || product.name || product.title;
+        if (productName) {
             const name = document.createElement("h3");
-            name.textContent = product.name;
+            name.textContent = productName;
             productDiv.appendChild(name);
+        }
+        // Додаємо автора (якщо є)
+        if (product.author) {
+            const author = document.createElement("p");
+            author.textContent = `Автор: ${product.author}`;
+            author.classList.add("product-author");
+            productDiv.appendChild(author);
         }
         // Додаємо ціну товару (якщо є)
         if (product.price) {
             const price = document.createElement("p");
-            price.textContent = `Ціна: ${product.price}`;
+            price.textContent = `Ціна: ${product.price} грн`;
             price.classList.add("product-price");
+            price.style.fontWeight = "bold";
+            price.style.color = "#007bff";
             productDiv.appendChild(price);
         }
         // Додаємо опис товару (якщо є)
@@ -131,8 +183,25 @@ function displayCategoryProducts(products, categoryShortName) {
             const description = document.createElement("p");
             description.textContent = product.description;
             description.classList.add("product-description");
+            // Обмежуємо довжину опису для кращого вигляду
+            if (product.description.length > 200) {
+                description.textContent = product.description.substring(0, 200) + "...";
+            }
             productDiv.appendChild(description);
         }
+        // Додаємо ID товару (для розробки)
+        if (product.id) {
+            const id = document.createElement("small");
+            id.textContent = `ID: ${product.id}`;
+            id.style.color = "#666";
+            productDiv.appendChild(id);
+        }
+        // Стилізуємо картку товару
+        productDiv.style.border = "1px solid #ddd";
+        productDiv.style.borderRadius = "8px";
+        productDiv.style.padding = "15px";
+        productDiv.style.margin = "10px";
+        productDiv.style.backgroundColor = "#f9f9f9";
         productsContainer.appendChild(productDiv);
     });
     container.appendChild(productsContainer);
