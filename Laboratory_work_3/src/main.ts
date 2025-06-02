@@ -46,7 +46,7 @@ function setPositions(categoryData: CategoryData, categoryName: string): void {
     bookDiv.classList.add("book");
 
     const img = document.createElement("img");
-    img.src = `images/catalog/${categoryName}/${element.short_name}.jpg`;
+    img.src = `images/${categoryName}/${element.short_name}.jpg`;
     img.alt = "Item";
 
     const h2 = document.createElement("h2");
@@ -91,7 +91,7 @@ function setButtonEvents(): void {
           </div>
         </div>
       `;
-      setButtonEvents(); // важливо!
+      setButtonEvents(); 
     });
   }
 
@@ -102,49 +102,48 @@ function setButtonEvents(): void {
   });
 
   if (randomCategoryBtn) {
-    randomCategoryBtn.addEventListener('click', () => {
-    const request = new XMLHttpRequest();
-    request.open("GET", "./categories.json");
+randomCategoryBtn.addEventListener('click', () => {
+  const request = new XMLHttpRequest();
+  request.open("GET", "./categories.json");
 
-    request.onreadystatechange = () => {
-        if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
-        try {
-            const categories = JSON.parse(request.responseText);
+  request.onreadystatechange = () => {
+    if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+      try {
+        const categories = JSON.parse(request.responseText);
 
-            if (!Array.isArray(categories) || categories.length === 0) {
-            console.error("Немає категорій або неправильний формат");
-            return;
-            }
-
-            let rand = Math.floor(Math.random() * categories.length);
-            while (rand === prevRand && categories.length > 1) {
-            rand = Math.floor(Math.random() * categories.length);
-            }
-            prevRand = rand;
-
-            const selected = categories[rand];
-            getCategoryPositions(selected.url, selected.short_name);
-        } catch (e) {
-            console.error("Помилка парсингу categories.json:", e);
+        if (!Array.isArray(categories) || categories.length === 0) {
+          console.error("Немає категорій або неправильний формат");
+          return;
         }
-        } else if (request.readyState === XMLHttpRequest.DONE) {
-        console.error("Помилка завантаження categories.json");
-        }
-    };
 
-    request.send();
+        let rand = Math.floor(Math.random() * categories.length);
+        while (rand === prevRand && categories.length > 1) {
+          rand = Math.floor(Math.random() * categories.length);
+        }
+        prevRand = rand;
+
+        const selected = categories[rand];
+        getCategoryPositions(selected.url, selected.short_name);
+      } catch (e) {
+        console.error("Помилка парсингу categories.json:", e);
+      }
+    } else if (request.readyState === XMLHttpRequest.DONE) {
+      console.error("Помилка завантаження categories.json");
+    }
+  };
+
+  request.send();
     });
-
+  }
 }
 
 function setCategoryClickEvents(): void {
   document.querySelectorAll<HTMLElement>('.category').forEach(link => {
     link.addEventListener('click', (event: Event) => {
       event.preventDefault();
-      const categoryId = link.getAttribute('id');
-      if (!categoryId) return;
+      const categoryShortName = link.getAttribute('id');
+      if (!categoryShortName) return;
 
-      // Завантажуємо categories.json
       const request = new XMLHttpRequest();
       request.open("GET", "./categories.json");
 
@@ -152,15 +151,17 @@ function setCategoryClickEvents(): void {
         if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
           try {
             const categories = JSON.parse(request.responseText);
-            const selected = categories.find((cat: any) => cat.short_name === categoryId);
+            const category = categories.find(
+              (cat: any) => cat.short_name === categoryShortName
+            );
 
-            if (selected) {
-              getCategoryPositions(selected.url, selected.short_name);
+            if (category) {
+              getCategoryPositions(category.url, category.short_name);
             } else {
-              console.error("Категорія не знайдена:", categoryId);
+              console.error("Категорія не знайдена:", categoryShortName);
             }
-          } catch (e) {
-            console.error("Помилка парсингу categories.json:", e);
+          } catch (err) {
+            console.error("Помилка парсингу categories.json:", err);
           }
         }
       };
@@ -213,5 +214,3 @@ function setCategoryData(dataSet: { short_name: string; full_name: string }[]): 
 }
 
 setButtonEvents();
-
-}
