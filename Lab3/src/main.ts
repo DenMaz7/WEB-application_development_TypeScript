@@ -59,7 +59,7 @@ function setPositions(categoryData: CategoryData, categoryName: string): void {
     desc.innerText = element.description;
 
     const price = document.createElement("p");
-    price.innerText = `${element.price}₴`;
+    price.innerText = `${element.price}`;
 
     const button = document.createElement("button");
     button.classList.add("buy-button");

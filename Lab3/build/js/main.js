@@ -41,7 +41,7 @@ function setPositions(categoryData, categoryName) {
         const desc = document.createElement("p");
         desc.innerText = element.description;
         const price = document.createElement("p");
-        price.innerText = `${element.price}₴`;
+        price.innerText = `${element.price}`;
         const button = document.createElement("button");
         button.classList.add("buy-button");
         button.innerText = "Дивитися";
