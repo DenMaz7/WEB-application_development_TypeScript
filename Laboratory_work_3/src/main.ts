@@ -102,50 +102,74 @@ function setButtonEvents(): void {
   });
 
   if (randomCategoryBtn) {
-randomCategoryBtn.addEventListener('click', () => {
-  const request = new XMLHttpRequest();
-  request.open("GET", "./categories.json");
+    randomCategoryBtn.addEventListener('click', () => {
+    const request = new XMLHttpRequest();
+    request.open("GET", "./categories.json");
 
-  request.onreadystatechange = () => {
-    if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
-      try {
-        const categories = JSON.parse(request.responseText);
+    request.onreadystatechange = () => {
+        if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+        try {
+            const categories = JSON.parse(request.responseText);
 
-        if (!Array.isArray(categories) || categories.length === 0) {
-          console.error("Немає категорій або неправильний формат");
-          return;
+            if (!Array.isArray(categories) || categories.length === 0) {
+            console.error("Немає категорій або неправильний формат");
+            return;
+            }
+
+            let rand = Math.floor(Math.random() * categories.length);
+            while (rand === prevRand && categories.length > 1) {
+            rand = Math.floor(Math.random() * categories.length);
+            }
+            prevRand = rand;
+
+            const selected = categories[rand];
+            getCategoryPositions(selected.url, selected.short_name);
+        } catch (e) {
+            console.error("Помилка парсингу categories.json:", e);
         }
-
-        let rand = Math.floor(Math.random() * categories.length);
-        while (rand === prevRand && categories.length > 1) {
-          rand = Math.floor(Math.random() * categories.length);
+        } else if (request.readyState === XMLHttpRequest.DONE) {
+        console.error("Помилка завантаження categories.json");
         }
-        prevRand = rand;
+    };
 
-        const selected = categories[rand];
-        getCategoryPositions(selected.url, selected.short_name);
-      } catch (e) {
-        console.error("Помилка парсингу categories.json:", e);
-      }
-    } else if (request.readyState === XMLHttpRequest.DONE) {
-      console.error("Помилка завантаження categories.json");
-    }
-  };
-
-  request.send();
+    request.send();
     });
-  }
+
 }
 
 function setCategoryClickEvents(): void {
   document.querySelectorAll<HTMLElement>('.category').forEach(link => {
     link.addEventListener('click', (event: Event) => {
       event.preventDefault();
-      const category = link.getAttribute('id');
-      if (category) getCategoryPositions(category);
+      const categoryId = link.getAttribute('id');
+      if (!categoryId) return;
+
+      // Завантажуємо categories.json
+      const request = new XMLHttpRequest();
+      request.open("GET", "./categories.json");
+
+      request.onreadystatechange = () => {
+        if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+          try {
+            const categories = JSON.parse(request.responseText);
+            const selected = categories.find((cat: any) => cat.short_name === categoryId);
+
+            if (selected) {
+              getCategoryPositions(selected.url, selected.short_name);
+            } else {
+              console.error("Категорія не знайдена:", categoryId);
+            }
+          } catch (e) {
+            console.error("Помилка парсингу categories.json:", e);
+          }
+        }
+      };
+
+      request.send();
     });
   });
 }
+
 
 function loadCategoryData(): void {
   const request = new XMLHttpRequest();
@@ -189,3 +213,5 @@ function setCategoryData(dataSet: { short_name: string; full_name: string }[]): 
 }
 
 setButtonEvents();
+
+}

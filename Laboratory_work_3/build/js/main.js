@@ -108,49 +108,70 @@ function setButtonEvents() {
             request.send();
         });
     }
-}
-function setCategoryClickEvents() {
-    document.querySelectorAll('.category').forEach(link => {
-        link.addEventListener('click', (event) => {
-            event.preventDefault();
-            const category = link.getAttribute('id');
-            if (category)
-                getCategoryPositions(category);
+    function setCategoryClickEvents() {
+        document.querySelectorAll('.category').forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                const categoryId = link.getAttribute('id');
+                if (!categoryId)
+                    return;
+                // Завантажуємо categories.json
+                const request = new XMLHttpRequest();
+                request.open("GET", "./categories.json");
+                request.onreadystatechange = () => {
+                    if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+                        try {
+                            const categories = JSON.parse(request.responseText);
+                            const selected = categories.find((cat) => cat.short_name === categoryId);
+                            if (selected) {
+                                getCategoryPositions(selected.url, selected.short_name);
+                            }
+                            else {
+                                console.error("Категорія не знайдена:", categoryId);
+                            }
+                        }
+                        catch (e) {
+                            console.error("Помилка парсингу categories.json:", e);
+                        }
+                    }
+                };
+                request.send();
+            });
         });
-    });
+    }
+    function loadCategoryData() {
+        const request = new XMLHttpRequest();
+        request.open("GET", "../categories.json");
+        request.onreadystatechange = () => {
+            if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+                const data = JSON.parse(request.responseText);
+                setCategoryData(data);
+            }
+        };
+        request.send();
+    }
+    function setCategoryData(dataSet) {
+        const container = document.getElementById("main");
+        if (!container)
+            return;
+        container.innerHTML = '';
+        dataSet.forEach((element) => {
+            const divCatalog = document.createElement("div");
+            divCatalog.classList.add("catalog");
+            const div = document.createElement("div");
+            div.classList.add("category");
+            div.setAttribute("id", element.short_name); // <--- обов’язково!
+            const img = document.createElement("img");
+            img.classList.add("bi");
+            img.src = `images/${element.short_name}/${element.short_name}.jpg`;
+            img.alt = element.full_name;
+            const h2 = document.createElement("h2");
+            h2.innerText = element.full_name;
+            div.append(img, h2);
+            divCatalog.appendChild(div);
+            container.appendChild(divCatalog);
+        });
+        setCategoryClickEvents();
+    }
+    setButtonEvents();
 }
-function loadCategoryData() {
-    const request = new XMLHttpRequest();
-    request.open("GET", "../categories.json");
-    request.onreadystatechange = () => {
-        if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
-            const data = JSON.parse(request.responseText);
-            setCategoryData(data);
-        }
-    };
-    request.send();
-}
-function setCategoryData(dataSet) {
-    const container = document.getElementById("main");
-    if (!container)
-        return;
-    container.innerHTML = '';
-    dataSet.forEach((element) => {
-        const divCatalog = document.createElement("div");
-        divCatalog.classList.add("catalog");
-        const div = document.createElement("div");
-        div.classList.add("category");
-        div.setAttribute("id", element.short_name); // <--- обов’язково!
-        const img = document.createElement("img");
-        img.classList.add("bi");
-        img.src = `images/${element.short_name}/${element.short_name}.jpg`;
-        img.alt = element.full_name;
-        const h2 = document.createElement("h2");
-        h2.innerText = element.full_name;
-        div.append(img, h2);
-        divCatalog.appendChild(div);
-        container.appendChild(divCatalog);
-    });
-    setCategoryClickEvents();
-}
-setButtonEvents();
