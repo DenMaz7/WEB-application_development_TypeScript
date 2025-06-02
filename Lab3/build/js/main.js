@@ -29,8 +29,8 @@ function setPositions(categoryData, categoryName) {
     divCatalog.classList.add("catalog");
     container.innerHTML = '';
     categoryData.forEach((element) => {
-        const bookDiv = document.createElement("div");
-        bookDiv.classList.add("book");
+        const filmDiv = document.createElement("div");
+        filmDiv.classList.add("film");
         const img = document.createElement("img");
         img.src = `images/${categoryName}/${element.short_name}.jpg`;
         img.alt = "Item";
@@ -45,8 +45,8 @@ function setPositions(categoryData, categoryName) {
         const button = document.createElement("button");
         button.classList.add("buy-button");
         button.innerText = "Купити";
-        bookDiv.append(img, h2, h3, desc, price, button);
-        divCatalog.appendChild(bookDiv);
+        filmDiv.append(img, h2, h3, desc, price, button);
+        divCatalog.appendChild(filmDiv);
         container.appendChild(divCatalog);
     });
 }
@@ -61,10 +61,9 @@ function setButtonEvents() {
                 return;
             container.innerHTML = `
         <div class="hero">
-          <img src="images/main.jpg">
           <div class="overlay"></div>
           <div class="cta">
-            <a href="#" class="button catalogButton" id="loadCatalogBtn">Перейти до каталогу</a>
+            <a href="#" class="button catalogButton" id="loadCatalogBtn">Перейти до жанрів</a>
             <a href="#" class="button catalogButton" id="randomCategory">Випадкова категорія</a>
           </div>
         </div>
