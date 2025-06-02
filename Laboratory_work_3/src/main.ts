@@ -104,7 +104,7 @@ function setButtonEvents(): void {
   if (randomCategoryBtn) {
 randomCategoryBtn.addEventListener('click', () => {
   const request = new XMLHttpRequest();
-  request.open("GET", "../categories.json");
+  request.open("GET", "./categories.json");
 
   request.onreadystatechange = () => {
     if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
@@ -145,7 +145,7 @@ function setCategoryClickEvents(): void {
       if (!categoryShortName) return;
 
       const request = new XMLHttpRequest();
-      request.open("GET", "../categories.json");
+      request.open("GET", "./categories.json");
 
       request.onreadystatechange = () => {
         if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
@@ -174,7 +174,7 @@ function setCategoryClickEvents(): void {
 
 function loadCategoryData(): void {
   const request = new XMLHttpRequest();
-  request.open("GET", "../categories.json");
+  request.open("GET", "./categories.json");
   request.onreadystatechange = () => {
     if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
       const data = JSON.parse(request.responseText) as { short_name: string; full_name: string }[];
