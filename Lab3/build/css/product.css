@@ -24,7 +24,7 @@ body {
   text-decoration: none;
 }
 
-.header {
+header {
   background-color: rgb(117 35 44);
   padding: 60px 20px;
   text-align: center;
@@ -135,10 +135,6 @@ body {
   transition: background-color 0.3s;
 }
 
-.buy-button:hover {
-  background-color: #0056b3;
-}
-
 .hero {
   position: relative;
   width: 100%;
@@ -180,5 +176,5 @@ body {
 }
 
 .button:hover {
-  background-color: #e68900;
+  background-color: rgb(126, 41, 51);
 }
