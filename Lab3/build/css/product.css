@@ -124,7 +124,7 @@ body {
 
 .buy-button {
   display: inline-block;
-  background-color: #ff9800;
+  background-color: rgb(117 35 44);
   color: white;
   border: none;
   padding: 10px 18px;
@@ -169,7 +169,7 @@ body {
 
 .button {
   display: block;
-  background-color: #ff9800;
+  background-color: rgb(117 35 44);
   color: #fff;
   padding: 15px 30px;
   text-decoration: none;
