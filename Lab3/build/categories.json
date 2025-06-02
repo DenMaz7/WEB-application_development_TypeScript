@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "full_name": "Фантастика",
+    "short_name": "sci_fi",
+    "notes": "",
+    "url": "./sci_fi.json"
+  },
+  {
+    "id": 2,
+    "full_name": "Драми",
+    "short_name": "drama",
+    "notes": "",
+    "url": "./drama.json"
+  },
+  {
+    "id": 3,
+    "full_name": "Комедії",
+    "short_name": "comedy",
+    "notes": "",
+    "url": "./comedy.json"
+  },
+  {
+    "id": 4,
+    "full_name": "Трилери",
+    "short_name": "thriller",
+    "notes": "",
+    "url": "./thriller.json"
+  }
+]
