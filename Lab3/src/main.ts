@@ -63,7 +63,7 @@ function setPositions(categoryData: CategoryData, categoryName: string): void {
 
     const button = document.createElement("button");
     button.classList.add("buy-button");
-    button.innerText = "Купити";
+    button.innerText = "Дивитися";
 
     filmDiv.append(img, h2, h3, desc, price, button);
     divCatalog.appendChild(filmDiv);
