@@ -3,54 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habit Tracker</title>
+    <title>⚓ Морський Бій</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="game-container">
-        <header class="game-header">
-            <h1>Прості Гонки</h1>
-            <div class="score-board">
-                <span>Швидкість: <span id="speed">0</span> км/год</span>
-                <span>Очки: <span id="score">0</span></span>
-                <span>Рівень: <span id="level">1</span></span>
-            </div>
-        </header>
-
-        <div class="game-area">
-            <div class="road">
-                <div class="road-line line-1"></div>
-                <div class="road-line line-2"></div>
-                <div class="road-line line-3"></div>
-                <div class="road-line line-4"></div>
-                
-                <div class="player-car" id="playerCar">
-                    <div class="car-body"></div>
-                    <div class="car-window"></div>
+    <div id="app">
+        <!-- Меню гри -->
+        <div id="menu" class="menu-container">
+            <div class="menu-content">
+                <h1 class="game-title">⚓ Морський Бій</h1>
+                <div class="menu-buttons">
+                    <button id="pvp-btn" class="menu-button pvp-button">
+                        👥 Гравець проти Гравця
+                    </button>
+                    <button id="pve-btn" class="menu-button pve-button">
+                        🤖 Гра проти Бота
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="game-controls">
-            <button id="startBtn" class="control-btn">Старт</button>
-            <button id="pauseBtn" class="control-btn" disabled>Пауза</button>
-            <button id="resetBtn" class="control-btn">Скинути</button>
-        </div>
-
-        <div class="instructions">
-            <p>Використовуйте клавіші ← → або A/D для керування автомобілем</p>
-            <p>Уникайте зіткнень з іншими автомобілями!</p>
-        </div>
-
-        <div id="gameOver" class="game-over hidden">
-            <div class="game-over-content">
-                <h2>Гра Закінчена!</h2>
-                <p>Ваш результат: <span id="finalScore">0</span> очок</p>
-                <button id="restartBtn" class="control-btn">Грати Знову</button>
+        <!-- Ігрове поле -->
+        <div id="game" class="game-container" style="display: none;">
+            <div class="game-header">
+                <h1 class="game-title">⚓ Морський Бій</h1>
+                <div class="message-panel">
+                    <p id="game-message" class="game-message">Оберіть режим гри</p>
+                    
+                    <div id="ship-controls" class="ship-controls" style="display: none;">
+                        <button id="rotate-btn" class="control-button">
+                            🔄 Орієнтація: <span id="orientation-text">Горизонтальна ↔️</span>
+                        </button>
+                        <p class="ship-info">
+                            🚢 Розміщуємо корабель розміром: <span id="ship-size" class="ship-size">1</span>
+                        </p>
+                    </div>
+                    
+                    <button id="menu-btn" class="control-button menu-return-btn">
+                        🏠 Повернутися в меню
+                    </button>
+                </div>
+            </div>
+            
+            <div class="boards-container">
+                <div class="board-section">
+                    <div class="board-header player1-header">
+                        <h2 id="player1-title">👤 Гравець 1</h2>
+                    </div>
+                    <div id="player1-board" class="game-board"></div>
+                </div>
+                
+                <div class="board-section">
+                    <div class="board-header player2-header">
+                        <h2 id="player2-title">👤 Гравець 2</h2>
+                    </div>
+                    <div id="player2-board" class="game-board"></div>
+                </div>
+            </div>
+            
+            <div id="winner-panel" class="winner-panel" style="display: none;">
+                <h2 id="winner-message" class="winner-message">🎉 Переможець! 🎉</h2>
+                <button id="new-game-btn" class="control-button new-game-btn">
+                    🆕 Нова гра
+                </button>
             </div>
         </div>
-    </div>
+    </div>    
     <script type="module" src="../dist/main.js"></script>
+</body>
 </html>
