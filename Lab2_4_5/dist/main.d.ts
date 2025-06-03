@@ -1,34 +1,26 @@
-export type PieceType = "pawn" | "rook" | "knight" | "bishop" | "queen" | "king";
-export type PieceColor = "white" | "black";
-export interface ChessPiece {
-    type: PieceType;
-    color: PieceColor;
-    hasMoved?: boolean;
+import { Router } from './router.js';
+import { ChessGame } from './board.js';
+import { GameHistory } from './history.js';
+declare global {
+    interface Window {
+        router: Router;
+        game: ChessGame;
+        gameHistory: GameHistory;
+    }
 }
-export interface Position {
-    row: number;
-    col: number;
+declare class App {
+    private router;
+    private game;
+    private gameHistory;
+    constructor();
+    private init;
+    private setupEventListeners;
+    private showMainMenu;
+    private startLocalGame;
+    private startBotGame;
+    private showHistory;
+    private hideAllPages;
+    private showPage;
 }
-export interface Move {
-    from: Position;
-    to: Position;
-    piece: ChessPiece;
-    capturedPiece?: ChessPiece;
-}
-export declare class PieceLogic {
-    static readonly PIECE_UNICODE: Record<PieceColor, Record<PieceType, string>>;
-    static getPieceUnicode(piece: ChessPiece): string;
-    static isValidMove(board: (ChessPiece | null)[][], from: Position, to: Position): boolean;
-    private static isValidPieceMove;
-    private static isValidPawnMove;
-    private static isValidRookMove;
-    private static isValidKnightMove;
-    private static isValidBishopMove;
-    private static isValidQueenMove;
-    private static isValidKingMove;
-    private static isPathClear;
-    static getPossibleMoves(board: (ChessPiece | null)[][], position: Position): Position[];
-    static isKingInCheck(board: (ChessPiece | null)[][], kingColor: PieceColor): boolean;
-    static isCheckmate(board: (ChessPiece | null)[][], kingColor: PieceColor): boolean;
-}
+export { App };
 //# sourceMappingURL=main.d.ts.map
