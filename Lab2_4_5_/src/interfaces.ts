@@ -1,0 +1,21 @@
+// TypeScript interfaces for Habit Tracker Calendar
+
+export interface Habit {
+    id: string;
+    name: string;
+    color: string;
+    createdAt: Date;
+}
+
+export interface HabitEntry {
+    habitId: string;
+    date: string; // YYYY-MM-DD format
+    completed: boolean;
+}
+
+export interface HabitData {
+    habits: Habit[];
+    habitEntries: HabitEntry[];
+}
+
+export type AlertType = 'success' | 'warning' | 'info' | 'danger';

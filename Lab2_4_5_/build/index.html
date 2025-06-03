@@ -12,65 +12,105 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow">
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <!-- Sidebar with Habits Management -->
+            <div class="col-lg-3 col-md-4">
+                <div class="card shadow habits-sidebar">
                     <div class="card-header bg-primary text-white">
-                        <h1 class="text-center mb-0">
-                            <i class="bi bi-check-circle-fill me-2"></i>
-                            Habit Tracker
-                        </h1>
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-check me-2"></i>
+                            Мої звички
+                        </h5>
                     </div>
                     <div class="card-body">
                         <!-- Add New Habit Form -->
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <div class="input-group">
                                 <input type="text" 
                                        id="newHabitInput" 
-                                       class="form-control" 
-                                       placeholder="Введіть нову звичку...">
-                                <button class="btn btn-success" 
+                                       class="form-control form-control-sm" 
+                                       placeholder="Нова звичка...">
+                                <button class="btn btn-success btn-sm" 
                                         type="button" 
                                         id="addHabitBtn">
                                     <i class="bi bi-plus-lg"></i>
-                                    Додати
                                 </button>
                             </div>
                         </div>
 
+                        <!-- Habits List for Management -->
+                        <div id="habitsManagement" class="habits-management">
+                            <!-- Habits management will be here -->
+                        </div>
+
                         <!-- Stats Section -->
-                        <div class="row mb-4">
-                            <div class="col-md-4">
-                                <div class="stat-card bg-info">
-                                    <div class="stat-number" id="totalHabits">0</div>
-                                    <div class="stat-label">Всього звичок</div>
-                                </div>
+                        <div class="stats-section mt-4">
+                            <h6 class="text-muted mb-3">Статистика</h6>
+                            <div class="stat-item">
+                                <span class="stat-label">Всього звичок:</span>
+                                <span class="stat-value" id="totalHabits">0</span>
                             </div>
-                            <div class="col-md-4">
-                                <div class="stat-card bg-success">
-                                    <div class="stat-number" id="completedToday">0</div>
-                                    <div class="stat-label">Виконано сьогодні</div>
-                                </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Виконано сьогодні:</span>
+                                <span class="stat-value" id="completedToday">0</span>
                             </div>
-                            <div class="col-md-4">
-                                <div class="stat-card bg-warning">
-                                    <div class="stat-number" id="completionRate">0%</div>
-                                    <div class="stat-label">Відсоток виконання</div>
+                            <div class="stat-item">
+                                <span class="stat-label">Відсоток виконання:</span>
+                                <span class="stat-value" id="completionRate">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Calendar View -->
+            <div class="col-lg-9 col-md-8">
+                <div class="card shadow calendar-section">
+                    <div class="card-header bg-gradient-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">
+                                <i class="bi bi-calendar3 me-2"></i>
+                                Календар звичок
+                            </h4>
+                            <div class="date-navigation">
+                                <button class="btn btn-outline-light btn-sm me-2" id="prevDaysBtn">
+                                    <i class="bi bi-chevron-left"></i>
+                                </button>
+                                <button class="btn btn-light btn-sm me-2" id="todayBtn">
+                                    Сьогодні
+                                </button>
+                                <button class="btn btn-outline-light btn-sm" id="nextDaysBtn">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <!-- Calendar Header -->
+                        <div class="calendar-header">
+                            <div class="row g-0">
+                                <div class="col-2 date-column-header">
+                                    <div class="p-3 text-center fw-bold">Звички</div>
+                                </div>
+                                <div class="col-10">
+                                    <div class="row g-0" id="dateHeaders">
+                                        <!-- Date headers will be generated here -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Habits List -->
-                        <div id="habitsList" class="habits-container">
-                            <!-- Habits will be dynamically added here -->
+                        <!-- Calendar Grid -->
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- Calendar content will be generated here -->
                         </div>
 
                         <!-- Empty State -->
-                        <div id="emptyState" class="text-center py-5">
-                            <i class="bi bi-plus-circle display-1 text-muted"></i>
-                            <h3 class="text-muted mt-3">Поки що немає звичок</h3>
-                            <p class="text-muted">Додайте свою першу звичку, щоб почати!</p>
+                        <div id="calendarEmptyState" class="text-center py-5" style="display: none;">
+                            <i class="bi bi-calendar-plus display-1 text-muted"></i>
+                            <h5 class="text-muted mt-3">Поки що немає звичок</h5>
+                            <p class="text-muted">Додайте свою першу звичку, щоб почати відстежувати прогрес!</p>
                         </div>
                     </div>
                 </div>
@@ -80,7 +120,10 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <!-- TypeScript compiled to JavaScript -->
-    <script src="./js/main.js"></script>
-</body>
+    <!-- TypeScript modules -->
+    <script type="module" src="../distinterfaces.js"></script>
+    <script type="module" src="../distutils.js"></script>
+    <script type="module" src="../distdata-manager.js"></script>
+    <script type="module" src="../distui-renderer.js"></script>
+    <script type="module" src="../distmain.js"></script>
 </html>
