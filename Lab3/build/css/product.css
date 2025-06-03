@@ -85,7 +85,7 @@ header {
   color: #444;
 }
 
-.film {
+.item {
   width: calc(50% - 20px);
   height: 600px;
   background-color: #ffffff;
@@ -100,25 +100,25 @@ header {
   padding: 20px;
 }
 
-.film img {
+.item img {
   max-width: 200px;
   height: auto;
   margin-bottom: 10px;
 }
 
-.film h2 {
+.item h2 {
   margin-top: 0;
   color: #222;
 }
 
-.film p {
+.item p {
   font-style: italic;
   margin: 5px 0;
   text-align: center;
   color: #555;
 }
 
-.film p:last-child {
+.item p:last-child {
   margin-bottom: 0;
 }
 
