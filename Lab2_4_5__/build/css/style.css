@@ -259,7 +259,7 @@ body {
 }
 
 .cell-ship.enemy-board {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: linear-gradient(135deg, #4b5563, #6b7280);
 }
 
 .cell-hit {
