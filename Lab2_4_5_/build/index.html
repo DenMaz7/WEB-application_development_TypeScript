@@ -1,92 +1,86 @@
 <!DOCTYPE html>
 <html lang="uk">
-
 <head>
     <meta charset="UTF-8">
-    <title>Chess</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css">
+    <title>Habit Tracker</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-    <div class="container">
-        <!-- Головне меню -->
-        <div id="main-menu" class="page">
-            <h1>♔ Шахи Онлайн ♛</h1>
-            <div class="menu">
-                <button class="btn" id="local-game-btn">
-                    👥 Гра на двох
-                </button>
-                <button class="btn" id="bot-game-btn">
-                    🤖 Гра проти бота
-                </button>
-                <button class="btn" id="history-btn">
-                    📜 Історія партій
-                </button>
-            </div>
-        </div>
-
-        <!-- Сторінка гри -->
-        <div id="game-page" class="page hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h1>♔ Шахи ♛</h1>
-                <button class="btn" id="menu-btn-1" style="min-width: auto; font-size: 14px; padding: 10px 20px;">
-                    🏠 До меню
-                </button>
-            </div>
-
-            <div id="game-status" class="game-status hidden"></div>
-
-            <div class="game-container">
-                <div class="chess-board">
-                    <table id="chess-board">
-  
-                    </table>
-                </div>
-
-                <div class="game-info">
-                    <div id="current-player" class="current-player">
-                        Хід білих
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="text-center mb-0">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            Habit Tracker
+                        </h1>
                     </div>
+                    <div class="card-body">
+                        <!-- Add New Habit Form -->
+                        <div class="mb-4">
+                            <div class="input-group">
+                                <input type="text" 
+                                       id="newHabitInput" 
+                                       class="form-control" 
+                                       placeholder="Введіть нову звичку...">
+                                <button class="btn btn-success" 
+                                        type="button" 
+                                        id="addHabitBtn">
+                                    <i class="bi bi-plus-lg"></i>
+                                    Додати
+                                </button>
+                            </div>
+                        </div>
 
-                    <div class="game-controls">
-                        <button class="btn" id="new-game-btn">
-                            🔄 Нова гра
-                        </button>
-                        <button class="btn" id="menu-btn-2">
-                            🏠 До меню
-                        </button>
-                        <button class="btn" id="history-btn-2">
-                            📜 Історія
-                        </button>
+                        <!-- Stats Section -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="stat-card bg-info">
+                                    <div class="stat-number" id="totalHabits">0</div>
+                                    <div class="stat-label">Всього звичок</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card bg-success">
+                                    <div class="stat-number" id="completedToday">0</div>
+                                    <div class="stat-label">Виконано сьогодні</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card bg-warning">
+                                    <div class="stat-number" id="completionRate">0%</div>
+                                    <div class="stat-label">Відсоток виконання</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Habits List -->
+                        <div id="habitsList" class="habits-container">
+                            <!-- Habits will be dynamically added here -->
+                        </div>
+
+                        <!-- Empty State -->
+                        <div id="emptyState" class="text-center py-5">
+                            <i class="bi bi-plus-circle display-1 text-muted"></i>
+                            <h3 class="text-muted mt-3">Поки що немає звичок</h3>
+                            <p class="text-muted">Додайте свою першу звичку, щоб почати!</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Сторінка історії -->
-        <div id="history-page" class="page hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h1>📜 Історія партій</h1>
-                <button class="btn" id="menu-btn-3" style="min-width: auto; font-size: 14px; padding: 10px 20px;">
-                    🏠 До меню
-                </button>
-            </div>
-
-            <div id="history-container" class="history-container">
-                <p style="text-align: center; color: #666;">Завантаження історії...</p>
-            </div>
-
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="btn" id="menu-btn-4">
-                    🏠 Повернутися до меню
-                </button>
             </div>
         </div>
     </div>
 
-    <!-- Підключення TypeScript модулів -->
-    <script type="module" src="../dist/main.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- TypeScript compiled to JavaScript -->
+    <script src="./js/main.js"></script>
 </body>
-
 </html>
