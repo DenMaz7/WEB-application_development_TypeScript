@@ -9,7 +9,8 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": false,
     "outDir": "./build/js",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "strictPropertyInitialization": false
   },
   "include": [
     "src/**/*"
