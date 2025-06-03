@@ -1,5 +1,3 @@
-// Main Habit Tracker Calendar class
-
 import { Habit, HabitEntry } from '../dist/interfaces.js';
 import { Utils } from '../dist/utils.js';
 import { DataManager } from '../dist/data_manager.js';
@@ -16,15 +14,12 @@ export class HabitTrackerCalendar {
     ];
 
     constructor() {
-        this.currentStartDate = Utils.getDateDaysAgo(9); // Show 10 days ending with today
+        this.currentStartDate = Utils.getDateDaysAgo(9); 
         this.loadData();
         this.initEventListeners();
         this.render();
     }
 
-    /**
-     * Initialize event listeners
-     */
     private initEventListeners(): void {
         const addBtn = document.getElementById('addHabitBtn') as HTMLButtonElement;
         const input = document.getElementById('newHabitInput') as HTMLInputElement;
@@ -44,9 +39,6 @@ export class HabitTrackerCalendar {
         todayBtn?.addEventListener('click', () => this.goToToday());
     }
 
-    /**
-     * Add new habit
-     */
     private addHabit(): void {
         const input = document.getElementById('newHabitInput') as HTMLInputElement;
         const habitName = input.value.trim();
@@ -76,9 +68,6 @@ export class HabitTrackerCalendar {
         Utils.showAlert('Звичку додано успішно!', 'success');
     }
 
-    /**
-     * Delete habit (public method for onclick handlers)
-     */
     public deleteHabit(id: string): void {
         if (confirm('Ви впевнені, що хочете видалити цю звичку? Всі записи будуть втрачені.')) {
             this.habits = this.habits.filter(habit => habit.id !== id);
@@ -89,14 +78,10 @@ export class HabitTrackerCalendar {
         }
     }
 
-    /**
-     * Toggle habit completion (public method for onclick handlers)
-     */
     public toggleHabit(habitId: string, dateStr: string): void {
         const date = new Date(dateStr);
         const today = new Date();
         
-        // Don't allow editing future dates
         if (date > today) {
             return;
         }
@@ -120,86 +105,53 @@ export class HabitTrackerCalendar {
         this.updateStats();
     }
 
-    /**
-     * Navigate days forward or backward
-     */
     private navigateDays(days: number): void {
         this.currentStartDate = new Date(this.currentStartDate.getTime() + days * 24 * 60 * 60 * 1000);
         this.renderCalendar();
     }
 
-    /**
-     * Go to today
-     */
     private goToToday(): void {
         this.currentStartDate = Utils.getDateDaysAgo(9);
         this.renderCalendar();
     }
 
-    /**
-     * Get current dates array
-     */
     private getDatesArray(): Date[] {
         return Utils.getDatesArray(this.currentStartDate, this.daysToShow);
     }
 
-    /**
-     * Render all UI components
-     */
     private render(): void {
         this.renderHabitsManagement();
         this.renderCalendar();
         this.updateStats();
     }
 
-    /**
-     * Render habits management sidebar
-     */
     private renderHabitsManagement(): void {
         UIRenderer.renderHabitsManagement(this.habits);
     }
 
-    /**
-     * Render calendar (headers + grid)
-     */
     private renderCalendar(): void {
         this.renderDateHeaders();
         this.renderCalendarGrid();
     }
 
-    /**
-     * Render date headers
-     */
     private renderDateHeaders(): void {
         const dates = this.getDatesArray();
         UIRenderer.renderDateHeaders(dates);
     }
 
-    /**
-     * Render calendar grid
-     */
     private renderCalendarGrid(): void {
         const dates = this.getDatesArray();
         UIRenderer.renderCalendarGrid(this.habits, this.habitEntries, dates);
     }
 
-    /**
-     * Update statistics
-     */
     private updateStats(): void {
         UIRenderer.updateStats(this.habits, this.habitEntries);
     }
 
-    /**
-     * Save data using DataManager
-     */
     private saveData(): void {
         DataManager.saveData(this.habits, this.habitEntries);
     }
 
-    /**
-     * Load data using DataManager
-     */
     private loadData(): void {
         const data = DataManager.loadData();
         this.habits = data.habits;
@@ -207,11 +159,9 @@ export class HabitTrackerCalendar {
     }
 }
 
-// Initialize the habit tracker when the page loads
 let habitTracker: HabitTrackerCalendar;
 
 document.addEventListener('DOMContentLoaded', () => {
     habitTracker = new HabitTrackerCalendar();
-    // Make habitTracker globally accessible for onclick handlers
     (window as any).habitTracker = habitTracker;
 });

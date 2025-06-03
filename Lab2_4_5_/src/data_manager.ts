@@ -1,14 +1,9 @@
-// Data management for Habit Tracker Calendar
-
 import { Habit, HabitEntry, HabitData } from '../dist/interfaces.js';
 import { Utils } from '../dist/utils.js';
 
 export class DataManager {
     private static readonly STORAGE_KEY = 'habit-tracker-data';
 
-    /**
-     * Save habits and entries to storage
-     */
     static saveData(habits: Habit[], habitEntries: HabitEntry[]): void {
         try {
             const data: HabitData = {
@@ -19,33 +14,13 @@ export class DataManager {
                 habitEntries: habitEntries
             };
             
-            // In a real application, this would use localStorage
-            // localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
-            console.log('Data saved:', data);
         } catch (error) {
             console.error('Error saving data:', error);
         }
     }
 
-    /**
-     * Load habits and entries from storage
-     */
     static loadData(): { habits: Habit[], habitEntries: HabitEntry[] } {
         try {
-            // In a real application, this would load from localStorage
-            // const savedData = localStorage.getItem(this.STORAGE_KEY);
-            // if (savedData) {
-            //     const data: HabitData = JSON.parse(savedData);
-            //     return {
-            //         habits: data.habits.map(habit => ({
-            //             ...habit,
-            //             createdAt: new Date(habit.createdAt)
-            //         })),
-            //         habitEntries: data.habitEntries
-            //     };
-            // }
-
-            // For demo purposes, return sample data
             return this.getSampleData();
         } catch (error) {
             console.error('Error loading data:', error);
@@ -53,9 +28,6 @@ export class DataManager {
         }
     }
 
-    /**
-     * Generate sample data for demo
-     */
     private static getSampleData(): { habits: Habit[], habitEntries: HabitEntry[] } {
         const habits: Habit[] = [
             {
@@ -81,13 +53,11 @@ export class DataManager {
         const habitEntries: HabitEntry[] = [];
         const today = new Date();
 
-        // Add some sample entries for the last 5 days
         for (let i = 0; i < 5; i++) {
             const date = new Date(today);
             date.setDate(date.getDate() - i);
             const dateStr = Utils.formatDate(date);
             
-            // Random completion for demo
             habits.forEach(habit => {
                 if (Math.random() > 0.4) {
                     habitEntries.push({
@@ -102,9 +72,6 @@ export class DataManager {
         return { habits, habitEntries };
     }
 
-    /**
-     * Calculate habit streak
-     */
     static getHabitStreak(habitEntries: HabitEntry[], habitId: string, endDate: Date): number {
         let streak = 0;
         let currentDate = new Date(endDate);

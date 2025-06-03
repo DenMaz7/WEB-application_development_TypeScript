@@ -1,13 +1,8 @@
-// UI rendering functions for Habit Tracker Calendar
-
 import { Habit, HabitEntry } from '../dist/interfaces.js';
 import { Utils } from '../dist/utils.js';
 import { DataManager } from '../dist/data_manager.js';
 
 export class UIRenderer {
-    /**
-     * Render habits management sidebar
-     */
     static renderHabitsManagement(habits: Habit[]): void {
         const container = document.getElementById('habitsManagement') as HTMLElement;
         
@@ -27,9 +22,6 @@ export class UIRenderer {
         `).join('');
     }
 
-    /**
-     * Render date headers
-     */
     static renderDateHeaders(dates: Date[]): void {
         const container = document.getElementById('dateHeaders') as HTMLElement;
 
@@ -51,9 +43,6 @@ export class UIRenderer {
         }).join('');
     }
 
-    /**
-     * Render calendar grid with habits
-     */
     static renderCalendarGrid(habits: Habit[], habitEntries: HabitEntry[], dates: Date[]): void {
         const container = document.getElementById('calendarGrid') as HTMLElement;
         const emptyState = document.getElementById('calendarEmptyState') as HTMLElement;
@@ -115,9 +104,6 @@ export class UIRenderer {
         }).join('');
     }
 
-    /**
-     * Update statistics display
-     */
     static updateStats(habits: Habit[], habitEntries: HabitEntry[]): void {
         const today = Utils.formatDate(new Date());
         const totalHabits = habits.length;

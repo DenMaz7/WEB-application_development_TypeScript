@@ -1,5 +1,3 @@
-// TypeScript interfaces for Habit Tracker Calendar
-
 export interface Habit {
     id: string;
     name: string;
@@ -9,7 +7,7 @@ export interface Habit {
 
 export interface HabitEntry {
     habitId: string;
-    date: string; // YYYY-MM-DD format
+    date: string;
     completed: boolean;
 }
 
