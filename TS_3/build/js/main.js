@@ -36,8 +36,6 @@ function setPositions(categoryData, categoryName) {
         img.alt = "Item";
         const h2 = document.createElement("h2");
         h2.innerText = element.full_name;
-        const h3 = document.createElement("h3");
-        h3.innerText = element.author;
         const desc = document.createElement("p");
         desc.innerText = element.description;
         const price = document.createElement("p");
@@ -45,7 +43,7 @@ function setPositions(categoryData, categoryName) {
         const button = document.createElement("button");
         button.classList.add("buy-button");
         button.innerText = "Купити";
-        bookDiv.append(img, h2, h3, desc, price, button);
+        bookDiv.append(img, h2, desc, price, button);
         divCatalog.appendChild(bookDiv);
         container.appendChild(divCatalog);
     });
