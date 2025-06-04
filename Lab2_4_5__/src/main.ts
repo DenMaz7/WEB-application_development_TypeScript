@@ -30,6 +30,11 @@ interface GameRecord {
   duration: string;
 }
 
+interface GameHistoryData {
+  games: GameRecord[];
+  lastUpdated: string;
+}
+
 class BattleshipGame {
   private readonly BOARD_SIZE = 10;
   private readonly SHIPS = [
@@ -39,12 +44,14 @@ class BattleshipGame {
     { size: 1, count: 4 }, // Катери
   ];
 
+  private readonly JSON_FILE_PATH = 'game-history.json';
+
   private gameMode: GameMode = "menu";
   private currentPlayer: Player = "player1";
-  private isPlacingShips = false;
+  private isPlacingShips: boolean = false;
   private placingPlayer: Player = "player1";
-  private placingShipIndex = 0;
-  private isHorizontal = true;
+  private placingShipIndex: number = 0;
+  private isHorizontal: boolean = true;
 
   private player1Board: Cell[][] = [];
   private player2Board: Cell[][] = [];
@@ -52,7 +59,7 @@ class BattleshipGame {
   private player2Ships: Ship[] = [];
 
   private winner: Player | null = null;
-  private message = "Оберіть режим гри";
+  private message: string = "Оберіть режим гри";
 
   // Стан для розумного бота
   private botTargetQueue: Position[] = [];
@@ -60,23 +67,23 @@ class BattleshipGame {
 
   // Статистика гри
   private gameStartTime: Date | null = null;
-  private movesCount = 0;
+  private movesCount: number = 0;
   private gameHistory: GameRecord[] = [];
 
   // DOM елементи
-  private menuElement: HTMLElement;
-  private gameElement: HTMLElement;
-  private messageElement: HTMLElement;
-  private shipControlsElement: HTMLElement;
-  private orientationTextElement: HTMLElement;
-  private shipSizeElement: HTMLElement;
-  private player1BoardElement: HTMLElement;
-  private player2BoardElement: HTMLElement;
-  private player1TitleElement: HTMLElement;
-  private player2TitleElement: HTMLElement;
-  private winnerPanelElement: HTMLElement;
-  private winnerMessageElement: HTMLElement;
-  private gameHistoryElement: HTMLElement;
+  private menuElement!: HTMLElement;
+  private gameElement!: HTMLElement;
+  private messageElement!: HTMLElement;
+  private shipControlsElement!: HTMLElement;
+  private orientationTextElement!: HTMLElement;
+  private shipSizeElement!: HTMLElement;
+  private player1BoardElement!: HTMLElement;
+  private player2BoardElement!: HTMLElement;
+  private player1TitleElement!: HTMLElement;
+  private player2TitleElement!: HTMLElement;
+  private winnerPanelElement!: HTMLElement;
+  private winnerMessageElement!: HTMLElement;
+  private gameHistoryElement!: HTMLElement;
 
   constructor() {
     this.initializeDOM();
@@ -87,40 +94,36 @@ class BattleshipGame {
   }
 
   private initializeDOM(): void {
-    this.menuElement = document.getElementById("menu")!;
-    this.gameElement = document.getElementById("game")!;
-    this.messageElement = document.getElementById("game-message")!;
-    this.shipControlsElement = document.getElementById("ship-controls")!;
-    this.orientationTextElement = document.getElementById("orientation-text")!;
-    this.shipSizeElement = document.getElementById("ship-size")!;
-    this.player1BoardElement = document.getElementById("player1-board")!;
-    this.player2BoardElement = document.getElementById("player2-board")!;
-    this.player1TitleElement = document.getElementById("player1-title")!;
-    this.player2TitleElement = document.getElementById("player2-title")!;
-    this.winnerPanelElement = document.getElementById("winner-panel")!;
-    this.winnerMessageElement = document.getElementById("winner-message")!;
-    this.gameHistoryElement = document.getElementById("game-history")!;
+    this.menuElement = this.getElementById("menu");
+    this.gameElement = this.getElementById("game");
+    this.messageElement = this.getElementById("game-message");
+    this.shipControlsElement = this.getElementById("ship-controls");
+    this.orientationTextElement = this.getElementById("orientation-text");
+    this.shipSizeElement = this.getElementById("ship-size");
+    this.player1BoardElement = this.getElementById("player1-board");
+    this.player2BoardElement = this.getElementById("player2-board");
+    this.player1TitleElement = this.getElementById("player1-title");
+    this.player2TitleElement = this.getElementById("player2-title");
+    this.winnerPanelElement = this.getElementById("winner-panel");
+    this.winnerMessageElement = this.getElementById("winner-message");
+    this.gameHistoryElement = this.getElementById("game-history");
+  }
+
+  private getElementById(id: string): HTMLElement {
+    const element = document.getElementById(id);
+    if (!element) {
+      throw new Error(`Element with id "${id}" not found`);
+    }
+    return element;
   }
 
   private setupEventListeners(): void {
-    document
-      .getElementById("pvp-btn")!
-      .addEventListener("click", () => this.initializeGame("pvp"));
-    document
-      .getElementById("pve-btn")!
-      .addEventListener("click", () => this.initializeGame("pve"));
-    document
-      .getElementById("menu-btn")!
-      .addEventListener("click", () => this.showMenu());
-    document
-      .getElementById("new-game-btn")!
-      .addEventListener("click", () => this.showMenu());
-    document
-      .getElementById("rotate-btn")!
-      .addEventListener("click", () => this.toggleOrientation());
-    document
-      .getElementById("clear-history-btn")!
-      .addEventListener("click", () => this.clearGameHistory());
+    this.getElementById("pvp-btn").addEventListener("click", () => this.initializeGame("pvp"));
+    this.getElementById("pve-btn").addEventListener("click", () => this.initializeGame("pve"));
+    this.getElementById("menu-btn").addEventListener("click", () => this.showMenu());
+    this.getElementById("new-game-btn").addEventListener("click", () => this.showMenu());
+    this.getElementById("rotate-btn").addEventListener("click", () => this.toggleOrientation());
+    this.getElementById("clear-history-btn").addEventListener("click", () => this.clearGameHistory());
   }
 
   private initializeBoards(): void {
@@ -155,165 +158,196 @@ class BattleshipGame {
     return ships;
   }
 
-private loadGameHistory(): void {
-  try {
-    // Додаємо більше перевірок для надійності
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const savedHistory = window.localStorage.getItem("battleship-history");
-      if (savedHistory && savedHistory.trim() !== '') {
-        const parsedHistory = JSON.parse(savedHistory);
-        // Перевіряємо, що це дійсно масив
-        if (Array.isArray(parsedHistory)) {
-          this.gameHistory = parsedHistory;
-          console.log('Історію завантажено:', this.gameHistory.length, 'записів');
+  // Методи роботи з JSON файлом
+  private async loadGameHistory(): Promise<void> {
+    try {
+      console.log('Завантаження історії ігор з JSON...');
+      
+      // Спробуємо завантажити існуючий файл
+      const response = await fetch(this.JSON_FILE_PATH);
+      
+      if (response.ok) {
+        const data: GameHistoryData = await response.json();
+        
+        if (data && Array.isArray(data.games)) {
+          this.gameHistory = data.games;
+          console.log(`Історію завантажено: ${this.gameHistory.length} записів`);
         } else {
-          console.warn('Збережена історія не є масивом, створюємо новий');
+          console.warn('Некоректний формат JSON, створюємо нову історію');
           this.gameHistory = [];
+          await this.createInitialHistoryFile();
         }
-      } else {
-        console.log('Збережена історія порожня, створюємо новий масив');
+      } else if (response.status === 404) {
+        console.log('Файл історії не знайдено, створюємо новий');
         this.gameHistory = [];
+        await this.createInitialHistoryFile();
+      } else {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    } else {
-      console.warn('localStorage недоступний');
+    } catch (error) {
+      console.error('Помилка завантаження історії:', error);
       this.gameHistory = [];
-    }
-  } catch (error) {
-    console.error("Помилка завантаження історії ігор:", error);
-    this.gameHistory = [];
-    // Очищуємо пошкоджені дані
-    this.clearCorruptedData();
-  }
-}
-
-private saveGameHistory(): void {
-  try {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const historyString = JSON.stringify(this.gameHistory);
-      window.localStorage.setItem("battleship-history", historyString);
-      console.log('Історію збережено:', this.gameHistory.length, 'записів');
-    } else {
-      console.warn('localStorage недоступний для збереження');
-    }
-  } catch (error) {
-    console.error("Помилка збереження історії ігор:", error);
-    // Якщо quota exceeded, очищуємо старі записи
-    if (error === 'QuotaExceededError') {
-      this.cleanupOldRecords();
+      await this.createInitialHistoryFile();
     }
   }
-}
 
-private clearCorruptedData(): void {
-  try {
-    if (window.localStorage) {
-      window.localStorage.removeItem("battleship-history");
-      console.log('Пошкоджені дані історії очищено');
+  private async createInitialHistoryFile(): Promise<void> {
+    try {
+      const initialData: GameHistoryData = {
+        games: [],
+        lastUpdated: new Date().toISOString()
+      };
+      
+      await this.saveGameHistoryToFile(initialData);
+      console.log('Початковий файл історії створено');
+    } catch (error) {
+      console.error('Не вдалося створити початковий файл:', error);
     }
-  } catch (error) {
-    console.error('Не вдалося очистити пошкоджені дані:', error);
-  }
-}
-
-private cleanupOldRecords(): void {
-  // Залишаємо тільки останні 20 записів при нехватці місця
-  this.gameHistory = this.gameHistory.slice(0, 20);
-  this.saveGameHistory();
-  console.log('Очищено старі записи через нехватку місця');
-}
-
-private addGameRecord(winner: Player): void {
-  if (!this.gameStartTime) return;
-
-  const endTime = new Date();
-  const duration = this.formatDuration(
-    endTime.getTime() - this.gameStartTime.getTime()
-  );
-
-  const winnerName =
-    winner === "player1"
-      ? "Гравець 1"
-      : winner === "bot"
-      ? "Бот"
-      : "Гравець 2";
-
-  const record: GameRecord = {
-    id: Date.now().toString(),
-    date: this.gameStartTime.toLocaleDateString("uk-UA"),
-    time: this.gameStartTime.toLocaleTimeString("uk-UA", {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
-    mode: this.gameMode === "pve" ? "PvE" : "PvP",
-    winner: winnerName,
-    moves: this.movesCount,
-    duration: duration,
-  };
-
-  this.gameHistory.unshift(record);
-
-  // Обмежуємо історію до 50 записів
-  if (this.gameHistory.length > 50) {
-    this.gameHistory = this.gameHistory.slice(0, 50);
   }
 
-  // Зберігаємо одразу після додавання
-  this.saveGameHistory();
-  
-  // Оновлюємо відображення
-  this.renderGameHistory();
-}
+  private async saveGameHistory(): Promise<void> {
+    try {
+      const historyData: GameHistoryData = {
+        games: this.gameHistory,
+        lastUpdated: new Date().toISOString()
+      };
+      
+      await this.saveGameHistoryToFile(historyData);
+      console.log(`Історію збережено: ${this.gameHistory.length} записів`);
+    } catch (error) {
+      console.error('Помилка збереження історії:', error);
+    }
+  }
 
-private clearGameHistory(): void {
-  const confirmMessage = `Ви впевнені, що хочете очистити всю історію ігор? 
-Буде видалено ${this.gameHistory.length} записів.`;
-  
-  if (confirm(confirmMessage)) {
-    this.gameHistory = [];
-    this.saveGameHistory();
+  private async saveGameHistoryToFile(data: GameHistoryData): Promise<void> {
+    // В реальному застосунку тут би був API запит на сервер
+    // Для демонстрації створюємо blob і пропонуємо завантажити
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    
+    // Створюємо URL для blob
+    const url = URL.createObjectURL(blob);
+    
+    // Створюємо тимчасове посилання для завантаження
+    const tempLink = document.createElement('a');
+    tempLink.href = url;
+    tempLink.download = this.JSON_FILE_PATH;
+    tempLink.style.display = 'none';
+    
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
+    
+    // Очищуємо URL
+    URL.revokeObjectURL(url);
+    
+    console.log('Файл історії готовий до завантаження');
+  }
+
+  private async addGameRecord(winner: Player): Promise<void> {
+    if (!this.gameStartTime) return;
+
+    const endTime = new Date();
+    const duration = this.formatDuration(
+      endTime.getTime() - this.gameStartTime.getTime()
+    );
+
+    const winnerName = this.getWinnerName(winner);
+
+    const record: GameRecord = {
+      id: Date.now().toString(),
+      date: this.gameStartTime.toLocaleDateString("uk-UA"),
+      time: this.gameStartTime.toLocaleTimeString("uk-UA", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      mode: this.gameMode === "pve" ? "PvE" : "PvP",
+      winner: winnerName,
+      moves: this.movesCount,
+      duration: duration,
+    };
+
+    this.gameHistory.unshift(record);
+
+    // Обмежуємо історію до 50 записів
+    if (this.gameHistory.length > 50) {
+      this.gameHistory = this.gameHistory.slice(0, 50);
+    }
+
+    // Зберігаємо в JSON файл
+    await this.saveGameHistory();
+    
+    // Оновлюємо відображення
     this.renderGameHistory();
-    console.log('Історію ігор очищено користувачем');
   }
-}
 
-// Додатковий метод для тестування localStorage
-private testLocalStorage(): boolean {
-  try {
-    if (typeof window === 'undefined' || !window.localStorage) {
-      return false;
+  private getWinnerName(winner: Player): string {
+    switch (winner) {
+      case "player1":
+        return "Гравець 1";
+      case "bot":
+        return "Бот";
+      case "player2":
+        return "Гравець 2";
+      default:
+        return "Невідомо";
     }
-    
-    // Тестуємо запис і читання
-    const testKey = 'battleship-test';
-    const testValue = 'test-data';
-    
-    window.localStorage.setItem(testKey, testValue);
-    const retrieved = window.localStorage.getItem(testKey);
-    window.localStorage.removeItem(testKey);
-    
-    return retrieved === testValue;
-  } catch (error) {
-    console.error('localStorage тест не пройдено:', error);
-    return false;
   }
-}
 
-// Метод для дебагінгу
-private debugStorage(): void {
-  console.log('=== Debug Storage Info ===');
-  console.log('localStorage доступний:', typeof window !== 'undefined' && !!window.localStorage);
-  console.log('localStorage тест:', this.testLocalStorage());
-  
-  try {
-    const saved = window.localStorage?.getItem("battleship-history");
-    console.log('Збережені дані (перші 100 символів):', saved?.substring(0, 100));
-    console.log('Розмір збережених даних:', saved?.length || 0, 'символів');
-    console.log('Поточна історія:', this.gameHistory.length, 'записів');
-  } catch (error) {
-    console.error('Помилка читання storage:', error);
+  private async clearGameHistory(): Promise<void> {
+    const confirmMessage = `Ви впевнені, що хочете очистити всю історію ігор? 
+Буде видалено ${this.gameHistory.length} записів.`;
+    
+    if (confirm(confirmMessage)) {
+      this.gameHistory = [];
+      await this.saveGameHistory();
+      this.renderGameHistory();
+      console.log('Історію ігор очищено користувачем');
+    }
   }
-  console.log('=== End Debug Info ===');
-}
+
+  // Метод для ручного завантаження JSON файлу
+  private setupFileUpload(): void {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json';
+    fileInput.style.display = 'none';
+    
+    fileInput.addEventListener('change', async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (file) {
+        try {
+          const text = await file.text();
+          const data: GameHistoryData = JSON.parse(text);
+          
+          if (data && Array.isArray(data.games)) {
+            this.gameHistory = data.games;
+            this.renderGameHistory();
+            console.log(`Історію завантажено з файлу: ${this.gameHistory.length} записів`);
+          } else {
+            alert('Некоректний формат файлу історії');
+          }
+        } catch (error) {
+          console.error('Помилка читання файлу:', error);
+          alert('Помилка при завантаженні файлу історії');
+        }
+      }
+    });
+    
+    document.body.appendChild(fileInput);
+    
+    // Додаємо кнопку для завантаження файлу
+    const uploadButton = document.createElement('button');
+    uploadButton.textContent = '📁 Завантажити історію';
+    uploadButton.className = 'upload-history-btn';
+    uploadButton.addEventListener('click', () => fileInput.click());
+    
+    const historyHeader = document.createElement('div');
+    historyHeader.className = 'history-header-controls';
+    historyHeader.appendChild(uploadButton);
+    
+    this.gameHistoryElement.parentNode?.insertBefore(historyHeader, this.gameHistoryElement);
+  }
 
   private formatDuration(milliseconds: number): string {
     const seconds = Math.floor(milliseconds / 1000);
@@ -702,7 +736,7 @@ private debugStorage(): void {
     this.renderBoards();
   }
 
-  private makeShot(row: number, col: number, targetPlayer: Player): void {
+  private async makeShot(row: number, col: number, targetPlayer: Player): Promise<void> {
     if (this.winner || this.isPlacingShips) return;
     if (this.gameMode === "pvp" && targetPlayer === this.currentPlayer) return;
     if (
@@ -786,24 +820,12 @@ private debugStorage(): void {
             : "player2"
           : "player1";
       this.winner = winnerPlayer;
-      this.message = `${
-        winnerPlayer === "player1"
-          ? "Гравець 1"
-          : winnerPlayer === "bot"
-          ? "Бот"
-          : "Гравець 2"
-      } переміг!`;
-      this.winnerMessageElement.textContent = `🎉 ${
-        winnerPlayer === "player1"
-          ? "Гравець 1"
-          : winnerPlayer === "bot"
-          ? "Бот"
-          : "Гравець 2"
-      } переміг! 🎉`;
+      this.message = `${this.getWinnerName(winnerPlayer)} переміг!`;
+      this.winnerMessageElement.textContent = `🎉 ${this.getWinnerName(winnerPlayer)} переміг! 🎉`;
       this.winnerPanelElement.style.display = "block";
 
       // Додаємо запис в історію
-      this.addGameRecord(winnerPlayer);
+      await this.addGameRecord(winnerPlayer);
 
       this.updateUI();
       this.renderBoards();
