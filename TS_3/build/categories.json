@@ -1,28 +1,29 @@
-[{
+[
+  {
   "id": 1,
   "full_name": "Україна",
   "short_name": "UA",
   "notes": "",
-  "url": "data/catalog/UA.json"
+  "url": "./UA.json"
 },
 {
   "id": 2,
   "full_name": "Америка",
   "short_name": "US",
   "notes": "",
-  "url": "data/catalog/US.json"
+  "url": "./US.json"
 },
 {
   "id": 3,
   "full_name": "Великобританія",
   "short_name": "UK",
   "notes": "",
-  "url": "data/catalog/UK.json"
+  "url": "./UK.json"
 },
 {
   "id": 4,
   "full_name": "Німеччина",
   "short_name": "GE",
   "notes": "",
-  "url": "data/catalog/GE.json"
+  "url": "./GE.json"
 }]
