@@ -155,68 +155,165 @@ class BattleshipGame {
     return ships;
   }
 
-  private loadGameHistory(): void {
-    try {
-      const savedHistory = window.localStorage?.getItem("battleship-history");
-      if (savedHistory) {
-        this.gameHistory = JSON.parse(savedHistory);
+private loadGameHistory(): void {
+  try {
+    // Додаємо більше перевірок для надійності
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const savedHistory = window.localStorage.getItem("battleship-history");
+      if (savedHistory && savedHistory.trim() !== '') {
+        const parsedHistory = JSON.parse(savedHistory);
+        // Перевіряємо, що це дійсно масив
+        if (Array.isArray(parsedHistory)) {
+          this.gameHistory = parsedHistory;
+          console.log('Історію завантажено:', this.gameHistory.length, 'записів');
+        } else {
+          console.warn('Збережена історія не є масивом, створюємо новий');
+          this.gameHistory = [];
+        }
+      } else {
+        console.log('Збережена історія порожня, створюємо новий масив');
+        this.gameHistory = [];
       }
-    } catch (error) {
-      console.warn("Не вдалося завантажити історію ігор:", error);
+    } else {
+      console.warn('localStorage недоступний');
       this.gameHistory = [];
     }
+  } catch (error) {
+    console.error("Помилка завантаження історії ігор:", error);
+    this.gameHistory = [];
+    // Очищуємо пошкоджені дані
+    this.clearCorruptedData();
   }
+}
 
-  private saveGameHistory(): void {
-    try {
-      if (window.localStorage) {
-        window.localStorage.setItem(
-          "battleship-history",
-          JSON.stringify(this.gameHistory)
-        );
-      }
-    } catch (error) {
-      console.warn("Не вдалося зберегти історію ігор:", error);
+private saveGameHistory(): void {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const historyString = JSON.stringify(this.gameHistory);
+      window.localStorage.setItem("battleship-history", historyString);
+      console.log('Історію збережено:', this.gameHistory.length, 'записів');
+    } else {
+      console.warn('localStorage недоступний для збереження');
+    }
+  } catch (error) {
+    console.error("Помилка збереження історії ігор:", error);
+    // Якщо quota exceeded, очищуємо старі записи
+    if (error === 'QuotaExceededError') {
+      this.cleanupOldRecords();
     }
   }
+}
 
-  private addGameRecord(winner: Player): void {
-    if (!this.gameStartTime) return;
-
-    const endTime = new Date();
-    const duration = this.formatDuration(
-      endTime.getTime() - this.gameStartTime.getTime()
-    );
-
-    const winnerName =
-      winner === "player1"
-        ? "Гравець 1"
-        : winner === "bot"
-        ? "Бот"
-        : "Гравець 2";
-
-    const record: GameRecord = {
-      id: Date.now().toString(),
-      date: this.gameStartTime.toLocaleDateString("uk-UA"),
-      time: this.gameStartTime.toLocaleTimeString("uk-UA", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      mode: this.gameMode === "pve" ? "PvE" : "PvP",
-      winner: winnerName,
-      moves: this.movesCount,
-      duration: duration,
-    };
-
-    this.gameHistory.unshift(record); // Додаємо на початок масиву
-
-    // Обмежуємо історію до 50 записів
-    if (this.gameHistory.length > 50) {
-      this.gameHistory = this.gameHistory.slice(0, 50);
+private clearCorruptedData(): void {
+  try {
+    if (window.localStorage) {
+      window.localStorage.removeItem("battleship-history");
+      console.log('Пошкоджені дані історії очищено');
     }
+  } catch (error) {
+    console.error('Не вдалося очистити пошкоджені дані:', error);
+  }
+}
 
+private cleanupOldRecords(): void {
+  // Залишаємо тільки останні 20 записів при нехватці місця
+  this.gameHistory = this.gameHistory.slice(0, 20);
+  this.saveGameHistory();
+  console.log('Очищено старі записи через нехватку місця');
+}
+
+private addGameRecord(winner: Player): void {
+  if (!this.gameStartTime) return;
+
+  const endTime = new Date();
+  const duration = this.formatDuration(
+    endTime.getTime() - this.gameStartTime.getTime()
+  );
+
+  const winnerName =
+    winner === "player1"
+      ? "Гравець 1"
+      : winner === "bot"
+      ? "Бот"
+      : "Гравець 2";
+
+  const record: GameRecord = {
+    id: Date.now().toString(),
+    date: this.gameStartTime.toLocaleDateString("uk-UA"),
+    time: this.gameStartTime.toLocaleTimeString("uk-UA", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    mode: this.gameMode === "pve" ? "PvE" : "PvP",
+    winner: winnerName,
+    moves: this.movesCount,
+    duration: duration,
+  };
+
+  this.gameHistory.unshift(record);
+
+  // Обмежуємо історію до 50 записів
+  if (this.gameHistory.length > 50) {
+    this.gameHistory = this.gameHistory.slice(0, 50);
+  }
+
+  // Зберігаємо одразу після додавання
+  this.saveGameHistory();
+  
+  // Оновлюємо відображення
+  this.renderGameHistory();
+}
+
+private clearGameHistory(): void {
+  const confirmMessage = `Ви впевнені, що хочете очистити всю історію ігор? 
+Буде видалено ${this.gameHistory.length} записів.`;
+  
+  if (confirm(confirmMessage)) {
+    this.gameHistory = [];
     this.saveGameHistory();
+    this.renderGameHistory();
+    console.log('Історію ігор очищено користувачем');
   }
+}
+
+// Додатковий метод для тестування localStorage
+private testLocalStorage(): boolean {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return false;
+    }
+    
+    // Тестуємо запис і читання
+    const testKey = 'battleship-test';
+    const testValue = 'test-data';
+    
+    window.localStorage.setItem(testKey, testValue);
+    const retrieved = window.localStorage.getItem(testKey);
+    window.localStorage.removeItem(testKey);
+    
+    return retrieved === testValue;
+  } catch (error) {
+    console.error('localStorage тест не пройдено:', error);
+    return false;
+  }
+}
+
+// Метод для дебагінгу
+private debugStorage(): void {
+  console.log('=== Debug Storage Info ===');
+  console.log('localStorage доступний:', typeof window !== 'undefined' && !!window.localStorage);
+  console.log('localStorage тест:', this.testLocalStorage());
+  
+  try {
+    const saved = window.localStorage?.getItem("battleship-history");
+    console.log('Збережені дані (перші 100 символів):', saved?.substring(0, 100));
+    console.log('Розмір збережених даних:', saved?.length || 0, 'символів');
+    console.log('Поточна історія:', this.gameHistory.length, 'записів');
+  } catch (error) {
+    console.error('Помилка читання storage:', error);
+  }
+  console.log('=== End Debug Info ===');
+}
 
   private formatDuration(milliseconds: number): string {
     const seconds = Math.floor(milliseconds / 1000);
@@ -259,14 +356,6 @@ class BattleshipGame {
       .join("");
 
     this.gameHistoryElement.innerHTML = historyHTML;
-  }
-
-  private clearGameHistory(): void {
-    if (confirm("Ви впевнені, що хочете очистити всю історію ігор?")) {
-      this.gameHistory = [];
-      this.saveGameHistory();
-      this.renderGameHistory();
-    }
   }
 
   private showMenu(): void {

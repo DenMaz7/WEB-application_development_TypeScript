@@ -97,25 +97,73 @@ class BattleshipGame {
     }
     loadGameHistory() {
         try {
-            const savedHistory = window.localStorage?.getItem("battleship-history");
-            if (savedHistory) {
-                this.gameHistory = JSON.parse(savedHistory);
+            // Додаємо більше перевірок для надійності
+            if (typeof window !== 'undefined' && window.localStorage) {
+                const savedHistory = window.localStorage.getItem("battleship-history");
+                if (savedHistory && savedHistory.trim() !== '') {
+                    const parsedHistory = JSON.parse(savedHistory);
+                    // Перевіряємо, що це дійсно масив
+                    if (Array.isArray(parsedHistory)) {
+                        this.gameHistory = parsedHistory;
+                        console.log('Історію завантажено:', this.gameHistory.length, 'записів');
+                    }
+                    else {
+                        console.warn('Збережена історія не є масивом, створюємо новий');
+                        this.gameHistory = [];
+                    }
+                }
+                else {
+                    console.log('Збережена історія порожня, створюємо новий масив');
+                    this.gameHistory = [];
+                }
+            }
+            else {
+                console.warn('localStorage недоступний');
+                this.gameHistory = [];
             }
         }
         catch (error) {
-            console.warn("Не вдалося завантажити історію ігор:", error);
+            console.error("Помилка завантаження історії ігор:", error);
             this.gameHistory = [];
+            // Очищуємо пошкоджені дані
+            this.clearCorruptedData();
         }
     }
     saveGameHistory() {
         try {
-            if (window.localStorage) {
-                window.localStorage.setItem("battleship-history", JSON.stringify(this.gameHistory));
+            if (typeof window !== 'undefined' && window.localStorage) {
+                const historyString = JSON.stringify(this.gameHistory);
+                window.localStorage.setItem("battleship-history", historyString);
+                console.log('Історію збережено:', this.gameHistory.length, 'записів');
+            }
+            else {
+                console.warn('localStorage недоступний для збереження');
             }
         }
         catch (error) {
-            console.warn("Не вдалося зберегти історію ігор:", error);
+            console.error("Помилка збереження історії ігор:", error);
+            // Якщо quota exceeded, очищуємо старі записи
+            if (error === 'QuotaExceededError') {
+                this.cleanupOldRecords();
+            }
         }
+    }
+    clearCorruptedData() {
+        try {
+            if (window.localStorage) {
+                window.localStorage.removeItem("battleship-history");
+                console.log('Пошкоджені дані історії очищено');
+            }
+        }
+        catch (error) {
+            console.error('Не вдалося очистити пошкоджені дані:', error);
+        }
+    }
+    cleanupOldRecords() {
+        // Залишаємо тільки останні 20 записів при нехватці місця
+        this.gameHistory = this.gameHistory.slice(0, 20);
+        this.saveGameHistory();
+        console.log('Очищено старі записи через нехватку місця');
     }
     addGameRecord(winner) {
         if (!this.gameStartTime)
@@ -139,12 +187,60 @@ class BattleshipGame {
             moves: this.movesCount,
             duration: duration,
         };
-        this.gameHistory.unshift(record); // Додаємо на початок масиву
+        this.gameHistory.unshift(record);
         // Обмежуємо історію до 50 записів
         if (this.gameHistory.length > 50) {
             this.gameHistory = this.gameHistory.slice(0, 50);
         }
+        // Зберігаємо одразу після додавання
         this.saveGameHistory();
+        // Оновлюємо відображення
+        this.renderGameHistory();
+    }
+    clearGameHistory() {
+        const confirmMessage = `Ви впевнені, що хочете очистити всю історію ігор? 
+Буде видалено ${this.gameHistory.length} записів.`;
+        if (confirm(confirmMessage)) {
+            this.gameHistory = [];
+            this.saveGameHistory();
+            this.renderGameHistory();
+            console.log('Історію ігор очищено користувачем');
+        }
+    }
+    // Додатковий метод для тестування localStorage
+    testLocalStorage() {
+        try {
+            if (typeof window === 'undefined' || !window.localStorage) {
+                return false;
+            }
+            // Тестуємо запис і читання
+            const testKey = 'battleship-test';
+            const testValue = 'test-data';
+            window.localStorage.setItem(testKey, testValue);
+            const retrieved = window.localStorage.getItem(testKey);
+            window.localStorage.removeItem(testKey);
+            return retrieved === testValue;
+        }
+        catch (error) {
+            console.error('localStorage тест не пройдено:', error);
+            return false;
+        }
+    }
+    // Метод для дебагінгу
+    debugStorage() {
+        console.log('=== Debug Storage Info ===');
+        console.log('localStorage доступний:', typeof window !== 'undefined' && !!window.localStorage);
+        console.log('localStorage тест:', this.testLocalStorage());
+        try {
+            const saved = window.localStorage?.getItem("battleship-history");
+            console.log('Збережені дані (перші 100 символів):', saved?.substring(0, 100));
+            console.log('Розмір збережених даних:', saved?.length || 0, 'символів');
+            console.log('Поточна історія:', this.gameHistory.length, 'записів');
+        }
+        catch (error) {
+            console.error('Помилка читання storage:', error);
+        }
+        console.log('=== End Debug Info ===');
     }
     formatDuration(milliseconds) {
         const seconds = Math.floor(milliseconds / 1000);
@@ -179,13 +275,6 @@ class BattleshipGame {
         `)
             .join("");
         this.gameHistoryElement.innerHTML = historyHTML;
-    }
-    clearGameHistory() {
-        if (confirm("Ви впевнені, що хочете очистити всю історію ігор?")) {
-            this.gameHistory = [];
-            this.saveGameHistory();
-            this.renderGameHistory();
-        }
     }
     showMenu() {
         this.gameMode = "menu";
